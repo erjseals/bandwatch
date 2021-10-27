@@ -40,14 +40,16 @@ static int throttle_init_debugfs(void)
   }
 
   junk = debugfs_create_file(
-          "limit",
+          "set",
           0444,
           throttle_dir,
           NULL,
           &add_fops);
   if (!junk) {
-    printk(KERN_ALERT "debugfs: failed to create /sys/kernel/debug/throttle/limit\n");
+    printk(KERN_ALERT "debugfs: failed to create /sys/kernel/debug/throttle/set\n");
   }
+
+  debugfs_create_u32("limit", 0444, throttle_dir, &throttleAmount);
 
   return 0;
 }
