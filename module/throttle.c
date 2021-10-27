@@ -14,23 +14,40 @@ MODULE_AUTHOR("Eric Seals <ericseals@ku.edu>");
 
 static struct dentry *throttle_dir = 0;
 
-static u32 hello = 0;
+static u32 throttleAmount = 0;
 
 /**************************************************************************
  * Functions 
  **************************************************************************/
 
+static int set_throttle_op(void *data, u64 value)
+{
+  throttleAmount = value;
+  return 0;
+}
+
+DEFINE_SIMPLE_ATTRIBUTE(add_fops, NULL, set_throttle_op, "%llu\n");
+
 static int throttle_init_debugfs(void)
 {
+  struct dentry *junk;
 
   throttle_dir = debugfs_create_dir("throttle", NULL);
   if (!throttle_dir) {
     // Abort module load
-    printk(KERN_ALERT "debugfs: failed to create /sys/kernel/debug/control\n");
+    printk(KERN_ALERT "debugfs: failed to create /sys/kernel/debug/throttle\n");
     return -1;
   }
 
-  debugfs_create_u32("hello", 0666, throttle_dir, &hello);
+  junk = debugfs_create_file(
+          "limit",
+          0444,
+          throttle_dir,
+          NULL,
+          &add_fops);
+  if (!junk) {
+    printk(KERN_ALERT "debugfs: failed to create /sys/kernel/debug/throttle/limit\n");
+  }
 
   return 0;
 }
