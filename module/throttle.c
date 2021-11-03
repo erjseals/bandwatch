@@ -77,7 +77,7 @@ static int show(struct seq_file *m, void *v)
     "virt_to_phys 0x%llx\n",
     (unsigned long long)*i,
     i,
-    (unsigned long long)virt_to_phys((void *)i)
+    (unsigned long long)phys_to_virt((void *)i)
   );
 
   /*
