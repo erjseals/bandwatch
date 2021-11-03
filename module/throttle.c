@@ -12,10 +12,10 @@ MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Eric Seals <ericseals@ku.edu>");
 
 #define MC_ADDRESS 0x70019000
-#define MC_EMEM_ARB_OUTSTANDING_REQ_0     0x94
-#define MC_EMEM_ARB_RING1_THROTTLE_0      0xe0
+#define MC_EMEM_ARB_OUTSTANDING_REQ_0     0x70019094
+#define MC_EMEM_ARB_RING1_THROTTLE_0      0x700190e0
 // Disable bit 31 for ring1 arbitration
-#define MC_EMEM_ARB_RING0_THROTTLE_MASK_0 0x6bc
+#define MC_EMEM_ARB_RING0_THROTTLE_MASK_0 0x700196bc
 
 
 /**************************************************************************
@@ -24,11 +24,7 @@ MODULE_AUTHOR("Eric Seals <ericseals@ku.edu>");
 
 static struct dentry *throttle_dir = 0;
 
-static struct dentry *debugfs_file = 0;
-
 static u32 throttleAmount = 0;
-
-static volatile u32 *i;
 
 /**************************************************************************
  * Functions 
@@ -68,65 +64,14 @@ static int throttle_init_debugfs(void)
   return 0;
 }
 
-static int show(struct seq_file *m, void *v)
-{
-  //*i = MC_ADDRESS + MC_EMEM_ARB_OUTSTANDING_REQ_0;
-  seq_printf(m,
-    "*i 0x%llx\n"
-    "i %p\n"
-    "virt_to_phys 0x%llx\n",
-    (unsigned long long)*i,
-    i,
-    (unsigned long long)phys_to_virt((void *)i)
-  );
-
-  /*
-  *i = MC_ADDRESS + MC_EMEM_ARB_RING1_THROTTLE_0;
-  seq_printf(m,
-    "*i 0x%llx\n"
-    "i %p\n"
-    "virt_to_phys 0x%llx\n",
-    (unsigned long long)*i,
-    i,
-    (unsigned long long)virt_to_phys((void *)i)
-  );
-
-  *i = MC_ADDRESS + MC_EMEM_ARB_RING0_THROTTLE_MASK_0;
-  seq_printf(m,
-    "*i 0x%llx\n"
-    "i %p\n"
-    "virt_to_phys 0x%llx\n",
-    (unsigned long long)*i,
-    i,
-    (unsigned long long)virt_to_phys((void *)i)
-  );
-  */
-  return 0;
-}
-
-static int open(struct inode *inode, struct file *file)
-{
-  return single_open(file, show, NULL);
-}
-
-static const struct file_operations fops = {
-  .llseek = seq_lseek,
-  .open = open,
-  .owner = THIS_MODULE,
-  .read = seq_read,
-  .release = single_release,
-};
 
 static int __init throttle_init(void) {
+  void __iomem *io = ioremap(MC_EMEM_ARB_OUTSTANDING_REQ_0, 32);
   printk(KERN_INFO "Throttle module has been loaded\n");
 
   throttle_init_debugfs();
 
-  i = kmalloc(sizeof(i), GFP_KERNEL);
-  *i = 0x70019094;
-  debugfs_file = debugfs_create_file(
-      "lkmc_virt_to_phys", S_IRUSR, NULL, NULL, &fops);
-
+  iowrite32(0xFFFFFFFF, io);
   return 0;
 }
 
@@ -135,7 +80,6 @@ static void __exit throttle_exit(void) {
 
   /* remove debugfs entries */
   debugfs_remove_recursive(throttle_dir);
-  kfree((void*)i);
 }
 
 module_init(throttle_init);
