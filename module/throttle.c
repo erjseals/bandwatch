@@ -70,6 +70,27 @@ static int throttle_init_debugfs(void)
 
 static int show(struct seq_file *m, void *v)
 {
+  *i = MC_ADDRESS + MC_EMEM_ARB_OUTSTANDING_REQ_0;
+  seq_printf(m,
+    "*i 0x%llx\n"
+    "i %p\n"
+    "virt_to_phys 0x%llx\n",
+    (unsigned long long)*i,
+    i,
+    (unsigned long long)virt_to_phys((void *)i)
+  );
+
+  *i = MC_ADDRESS + MC_EMEM_ARB_RING1_THROTTLE_0;
+  seq_printf(m,
+    "*i 0x%llx\n"
+    "i %p\n"
+    "virt_to_phys 0x%llx\n",
+    (unsigned long long)*i,
+    i,
+    (unsigned long long)virt_to_phys((void *)i)
+  );
+
+  *i = MC_ADDRESS + MC_EMEM_ARB_RING0_THROTTLE_MASK_0;
   seq_printf(m,
     "*i 0x%llx\n"
     "i %p\n"
