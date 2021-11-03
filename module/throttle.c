@@ -70,7 +70,7 @@ static int throttle_init_debugfs(void)
 
 static int show(struct seq_file *m, void *v)
 {
-  *i = MC_ADDRESS + MC_EMEM_ARB_OUTSTANDING_REQ_0;
+  //*i = MC_ADDRESS + MC_EMEM_ARB_OUTSTANDING_REQ_0;
   seq_printf(m,
     "*i 0x%llx\n"
     "i %p\n"
@@ -80,6 +80,7 @@ static int show(struct seq_file *m, void *v)
     (unsigned long long)virt_to_phys((void *)i)
   );
 
+  /*
   *i = MC_ADDRESS + MC_EMEM_ARB_RING1_THROTTLE_0;
   seq_printf(m,
     "*i 0x%llx\n"
@@ -99,6 +100,7 @@ static int show(struct seq_file *m, void *v)
     i,
     (unsigned long long)virt_to_phys((void *)i)
   );
+  */
   return 0;
 }
 
@@ -121,7 +123,7 @@ static int __init throttle_init(void) {
   throttle_init_debugfs();
 
   i = kmalloc(sizeof(i), GFP_KERNEL);
-  *i = 0x12345678;
+  *i = 0x70019094;
   debugfs_file = debugfs_create_file(
       "lkmc_virt_to_phys", S_IRUSR, NULL, NULL, &fops);
 
