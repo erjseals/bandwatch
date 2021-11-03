@@ -32,6 +32,25 @@ static u32 throttleAmount = 0;
 
 static int set_throttle_op(void *data, u64 value)
 {
+  // Set Request Limit (If outstanding requests exceed, throttling initiates) 
+  // 31st bit HIGH
+  // 30th bit LOW
+  // 8:0 bits set the limit number
+  u32 bitWise = 0x80000040;
+  void __iomem *io = ioremap(MC_EMEM_ARB_OUTSTANDING_REQ_0, 32);
+  iowrite32( (ioread32(io) | bitWise) , io);
+
+  // Define Throttling amount
+  // Bits 20:16 set throttling amount when limit is exceeded
+  bitWise = 0x001f0000;
+  io = ioremap(MC_EMEM_ARB_RING1_THROTTLE_0, 32);
+  iowrite32( (ioread32(io) | bitWise) , io);
+
+  // Enable Ring1 Arbitration
+  bitWise = 0x80008041;
+  io = ioremap(MC_EMEM_ARB_RING0_THROTTLE_MASK_0, 32);
+  iowrite32( (ioread32(io) | bitWise) , io);
+
   throttleAmount = value;
   return 0;
 }
@@ -66,12 +85,10 @@ static int throttle_init_debugfs(void)
 
 
 static int __init throttle_init(void) {
-  void __iomem *io = ioremap(MC_EMEM_ARB_OUTSTANDING_REQ_0, 32);
   printk(KERN_INFO "Throttle module has been loaded\n");
 
   throttle_init_debugfs();
 
-  iowrite32(0xFFFFFFFF, io);
   return 0;
 }
 
