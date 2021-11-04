@@ -1,1 +1,0 @@
-cmd_/home/erjseals/dev/linux-kernel/module/throttle.ko := ld -EL -r  -T ./scripts/module-common.lds -T ./arch/arm64/kernel/module.lds --build-id  -o /home/erjseals/dev/linux-kernel/module/throttle.ko /home/erjseals/dev/linux-kernel/module/throttle.o /home/erjseals/dev/linux-kernel/module/throttle.mod.o ;  true

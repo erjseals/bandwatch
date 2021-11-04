@@ -1,0 +1,17 @@
+# Compiled Object Files
+*.slo
+*.lo
+*.o
+*.obj
+
+# VS Code
+*.vscode
+
+# Vim
+*.swp
+
+# Linux Kernel
+*.ko
+*.symvers
+*.mod.c
+*.order
