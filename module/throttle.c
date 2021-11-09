@@ -34,9 +34,13 @@ static int set_throttle_op(void *data, u64 value)
 {
   // Set Request Limit (If outstanding requests exceed, throttling initiates) 
   // 31st bit LOW - don't limit requests, we want them to exceed the arbitration limit 
+  //
+  // Bits 8:0 sets the request limit
   u32 bitWise = ~(1 << 31);
+  u32 limit = 0x000001FF;
+ 
   void __iomem *io = ioremap(MC_EMEM_ARB_OUTSTANDING_REQ_0, 32);
-  iowrite32( (ioread32(io) & bitWise) , io);
+  iowrite32( ( (ioread32(io) & bitWise) | limit ) , io);
 
   // Define Throttling amount
   // Bits 20:16 set throttling amount when limit is exceeded
