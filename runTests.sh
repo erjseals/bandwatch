@@ -1,8 +1,8 @@
 #!/bin/bash
 
-for limit in {0..512..16}
+for limit in {510..512..1}
 do
-  for throttle in {0..32..4}
+  for throttle in {0..31..1}
   do
     echo $limit > /sys/kernel/debug/throttle/limit
     echo $throttle > /sys/kernel/debug/throttle/throttle
