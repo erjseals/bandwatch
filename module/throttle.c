@@ -42,6 +42,8 @@ static int set_throttle_op(void *data, u64 value)
   u32 bitWise = ~(1 << 31);
   u32 limit = 0x00000001;
 
+  u64 throttle = value;
+
   void __iomem *io = ioremap(MC_EMEM_ARB_OUTSTANDING_REQ_0, 32);
 
   // Clear the low 8 bits
@@ -51,7 +53,8 @@ static int set_throttle_op(void *data, u64 value)
 
   // Define Throttling amount
   // Bits 20:16 set throttling amount when limit is exceeded
-  bitWise = 0x001f0000;
+  // Bits 4:0 set throttling for when limit not exceeded
+  bitWise = throttle << 16;
   io = ioremap(MC_EMEM_ARB_RING1_THROTTLE_0, 32);
   iowrite32( (ioread32(io) | bitWise) , io);
 
@@ -69,7 +72,7 @@ static int set_throttle_op(void *data, u64 value)
 
   // Define Throttling amount
   // Bits 4:0 set throttling amount when limit is exceeded
-  bitWise = 0x0000001F;
+  bitWise = throttle;
   io = ioremap(MC_EMEM_ARB_RING3_THROTTLE_0, 32);
   iowrite32( (ioread32(io) | bitWise) , io);
 
