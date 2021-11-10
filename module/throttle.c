@@ -37,9 +37,11 @@ static int set_throttle_op(void *data, u64 value)
   //
   // Bits 8:0 sets the request limit
   u32 bitWise = ~(1 << 31);
-  u32 limit = 0x000001FF;
- 
+  u32 limit = 0x00000001;
+
   void __iomem *io = ioremap(MC_EMEM_ARB_OUTSTANDING_REQ_0, 32);
+
+  bitWise = bitWise & 0x11111E00;
   iowrite32( ( (ioread32(io) & bitWise) | limit ) , io);
 
   // Define Throttling amount
@@ -49,9 +51,9 @@ static int set_throttle_op(void *data, u64 value)
   iowrite32( (ioread32(io) | bitWise) , io);
 
   // Enable Ring1 Arbitration
-  bitWise = 0x80008041;
+  bitWise = 0x00008000;
   io = ioremap(MC_EMEM_ARB_RING0_THROTTLE_MASK_0, 32);
-  iowrite32( (ioread32(io) | bitWise) , io);
+  iowrite32( bitWise , io);
 
   throttleAmount = value;
   return 0;
