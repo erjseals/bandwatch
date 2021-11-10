@@ -12,10 +12,13 @@ MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Eric Seals <ericseals@ku.edu>");
 
 #define MC_ADDRESS 0x70019000
-#define MC_EMEM_ARB_OUTSTANDING_REQ_0     0x70019094
-#define MC_EMEM_ARB_RING1_THROTTLE_0      0x700190e0
+#define MC_EMEM_ARB_OUTSTANDING_REQ_0       0x70019094
+#define MC_EMEM_ARB_RING1_THROTTLE_0        0x700190e0
+#define MC_EMEM_ARB_RING3_THROTTLE_0        0x700190e4
 // Disable bit 31 for ring1 arbitration
-#define MC_EMEM_ARB_RING0_THROTTLE_MASK_0 0x700196bc
+#define MC_EMEM_ARB_RING0_THROTTLE_MASK_0   0x700196bc
+
+#define MC_EMEM_ARB_OUTSTANDING_REQ_RING3_0 0x7001966c
 
 
 /**************************************************************************
@@ -41,6 +44,8 @@ static int set_throttle_op(void *data, u64 value)
 
   void __iomem *io = ioremap(MC_EMEM_ARB_OUTSTANDING_REQ_0, 32);
 
+  // Clear the low 8 bits
+  // to be or-ed with limit
   bitWise = bitWise & 0x11111E00;
   iowrite32( ( (ioread32(io) & bitWise) | limit ) , io);
 
@@ -51,9 +56,22 @@ static int set_throttle_op(void *data, u64 value)
   iowrite32( (ioread32(io) | bitWise) , io);
 
   // Enable Ring1 Arbitration
-  bitWise = 0x00008000;
+  bitWise = 0x80008000;
   io = ioremap(MC_EMEM_ARB_RING0_THROTTLE_MASK_0, 32);
   iowrite32( bitWise , io);
+
+
+  // Enable throttling at Ring2 output
+  // Misnamed RING3_THROTTLE in the TRM
+  bitWise = 0xFFFFFE01;
+  io = ioremap(MC_EMEM_ARB_OUTSTANDING_REQ_RING3_0, 32);
+  iowrite32( (ioread32(io) & bitWise) , io);
+
+  // Define Throttling amount
+  // Bits 4:0 set throttling amount when limit is exceeded
+  bitWise = 0x0000001F;
+  io = ioremap(MC_EMEM_ARB_RING3_THROTTLE_0, 32);
+  iowrite32( (ioread32(io) | bitWise) , io);
 
   throttleAmount = value;
   return 0;
