@@ -29,7 +29,6 @@ static struct dentry *throttle_dir = 0;
 
 static u32 throttleAmount = 0;
 static u32 throttleLimit  = 0;
-static u32 limitAmount    = 0;
 
 /**************************************************************************
  * Functions 
