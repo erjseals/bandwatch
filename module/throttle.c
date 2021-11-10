@@ -56,7 +56,7 @@ static int set_throttle_op(void *data, u64 value)
   // Bits 4:0 set throttling for when limit not exceeded
   bitWise = throttle << 16;
   io = ioremap(MC_EMEM_ARB_RING1_THROTTLE_0, 32);
-  iowrite32( (ioread32(io) | bitWise) , io);
+  iowrite32( bitWise , io);
 
   // Enable Ring1 Arbitration
   bitWise = 0x80008000;
