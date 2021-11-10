@@ -51,7 +51,7 @@ static int set_throttle_op(void *data, u64 value)
 
   // Define Throttling amount
   // Bits 20:16 set throttling amount when limit is exceeded
-  bitWise = 0x001f001F;
+  bitWise = 0x001f0000;
   io = ioremap(MC_EMEM_ARB_RING1_THROTTLE_0, 32);
   iowrite32( (ioread32(io) | bitWise) , io);
 
