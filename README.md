@@ -4,6 +4,7 @@
   - Jetson TX-1
 - Experiment scripts to reproduce results from our paper
 - Documentation
+- See the slides here: https://docs.google.com/presentation/d/1GTzFajC9g4LfEN-imlE-JtDgsqb07BBJmNoPGDqJJnA/edit?usp=sharing
 
 # Pre-requisites
 ### Hardware
