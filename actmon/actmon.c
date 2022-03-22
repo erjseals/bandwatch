@@ -13,23 +13,23 @@ MODULE_AUTHOR("Eric Seals <ericseals@ku.edu>");
 
 
 // Base Address
-#define ACTMON_ADDRESS 			    0x6000c800
+#define ACTMON_ADDRESS                0x6000c800
 
 // Offsets
 
 // Global Enable
-#define ACTMON_GLB_STATUS_0		    0x0
+#define ACTMON_GLB_STATUS_0		        0x0
 
 // All Memory Controller Traffic
-#define ACTMON_MCALL_CTRL_0		    0x1c0
-#define ACTMON_MCALL_INIT_AVG_0		    0x1cc
-#define ACTMON_MCALL_COUNT_0		    0x1dc
+#define ACTMON_MCALL_CTRL_0		        0x1c0
+#define ACTMON_MCALL_INIT_AVG_0       0x1cc
+#define ACTMON_MCALL_COUNT_0          0x1dc
 #define ACTMON_MCALL_AVG_COUNT_0	    0x1e0
 
 // Only CPU Memory Controller Traffic
-#define ACTMON_MCCPU_CTRL_0		    0x200
+#define ACTMON_MCCPU_CTRL_0		        0x200
 #define ACTMON_MCCPU_INIT_AVG_0		    0x20c
-#define ACTMON_MCCPU_COUNT_0		    0x21c
+#define ACTMON_MCCPU_COUNT_0		      0x21c
 #define ACTMON_MCCPU_AVG_COUNT_0	    0x220
 
 
