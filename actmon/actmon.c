@@ -48,8 +48,6 @@ static u32 MCALL_AVG = 0;
 
 static int set_actmon_op(void *data, u64 value)
 {
-  u32 bitWise = (1 << 9);
-
   // Initialize Global Enable
   // MCALL bit 9
   // MCCPU bit 8 
