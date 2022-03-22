@@ -19,6 +19,7 @@ MODULE_AUTHOR("Eric Seals <ericseals@ku.edu>");
 
 // Global Enable
 #define ACTMON_GLB_STATUS_0		        0x0
+#define ACTMON_GLB_PERIOD_CTRL_0      0x4
 
 // All Memory Controller Traffic
 #define ACTMON_MCALL_CTRL_0		        0x1c0
@@ -55,6 +56,12 @@ static int set_actmon_op(void *data, u64 value)
   void __iomem *io = ioremap(ACTMON_ADDRESS + ACTMON_GLB_STATUS_0, 32);
   iowrite32( (ioread32(io) | bitWise) , io);
 
+  // Initialize Global Period
+  // Writing 0 to bit 8 sets period time base in msec
+  // Writing 0 to bits 7:0 creates a 1 msec sampling period
+  bitWise = 0;
+  io = ioremap(ACTMON_ADDRESS + ACTMON_GLB_PERIOD_CTRL_0, 32);
+  iowrite32( bitWise , io);
 
   // Initialize the AVG Count to 0
   bitWise = 0;
