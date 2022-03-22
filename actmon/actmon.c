@@ -54,7 +54,8 @@ static int set_actmon_op(void *data, u64 value)
   // Initialize Global Enable
   // MCALL bit 9
   // MCCPU bit 8 
-  u32 bitWise = (1 << 9);
+  u32 bitWise = (1 << 8) | (1 << 9);
+
   void __iomem *io = ioremap(ACTMON_ADDRESS + ACTMON_GLB_STATUS_0, 32);
   iowrite32( (ioread32(io) | bitWise) , io);
 
