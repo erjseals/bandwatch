@@ -1,0 +1,1 @@
+cmd_/home/erjseals/dev/linux-kernel/actmon/actmon.ko := ld -EL -r  -T ./scripts/module-common.lds -T ./arch/arm64/kernel/module.lds --build-id  -o /home/erjseals/dev/linux-kernel/actmon/actmon.ko /home/erjseals/dev/linux-kernel/actmon/actmon.o /home/erjseals/dev/linux-kernel/actmon/actmon.mod.o ;  true
