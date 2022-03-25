@@ -42,7 +42,9 @@ static struct dentry *actmon_dir = 0;
 
 static u32 EnableACTMON = 0;
 static u32 MCALL_AVG = 0;
+/*
 static u32 MCCPU_AVG = 0;
+*/
 
 /**************************************************************************
  * Functions 
@@ -54,15 +56,18 @@ static int set_actmon_op(void *data, u64 value)
   // Initialize Global Enable
   // MCALL bit 9
   // MCCPU bit 8 
-  u32 bitWise = (1 << 8) | (1 << 9);
+  u32 bitWise = (1 << 9);
 
   void __iomem *io = ioremap(ACTMON_ADDRESS + ACTMON_GLB_STATUS_0, 32);
   iowrite32( (ioread32(io) | bitWise) , io);
 
   // Initialize Global Period
-  // Writing 0 to bit 8 sets period time base in msec
-  // Writing 0 to bits 7:0 creates a 1 msec sampling period
-  bitWise = 0;
+  // Writing 1/0 to bit 8 sets period time base in usec/msec
+  // Writing n to bits 7:0 creates a n+1 usec/msec sampling period
+
+  // Setting for 10 usec
+  bitWise = (1 << 8) | (0x9);
+
   io = ioremap(ACTMON_ADDRESS + ACTMON_GLB_PERIOD_CTRL_0, 32);
   iowrite32( bitWise , io);
 
@@ -80,7 +85,8 @@ static int set_actmon_op(void *data, u64 value)
   bitWise = (1 << 31);
   iowrite32( (ioread32(io) | bitWise) , io);
 
-  // MCCPU
+  /*
+  // MCCPU (Currently non-functional)
   //
   // Initialize the AVG Count to 0
   bitWise = 0;
@@ -93,6 +99,7 @@ static int set_actmon_op(void *data, u64 value)
 
   bitWise = (1 << 31);
   iowrite32( (ioread32(io) | bitWise) , io);
+  */
 
   EnableACTMON = bitWise;
   return 0;
@@ -108,6 +115,7 @@ static int set_mcall_count_op(void *data, u64 value)
   return 0;
 }
 
+/*
 static int set_mccpu_count_op(void *data, u64 value)
 {
   // Read the number of avg cycles 
@@ -117,10 +125,13 @@ static int set_mccpu_count_op(void *data, u64 value)
   MCCPU_AVG = ioread32(io);
   return 0;
 }
+*/
 
 DEFINE_SIMPLE_ATTRIBUTE(actmon_fops, NULL, set_actmon_op, "%llu\n");
 DEFINE_SIMPLE_ATTRIBUTE(mcall_count_fops, NULL, set_mcall_count_op, "%llu\n");
+/*
 DEFINE_SIMPLE_ATTRIBUTE(mccpu_count_fops, NULL, set_mccpu_count_op, "%llu\n");
+*/
 
 static int actmon_init_debugfs(void)
 {
@@ -153,6 +164,7 @@ static int actmon_init_debugfs(void)
     printk(KERN_ALERT "debugfs: failed to create /sys/kernel/debug/actmon/mcall_count\n");
   }
 
+  /*
   junk = debugfs_create_file(
           "mccpu_count",
           0444,
@@ -162,10 +174,13 @@ static int actmon_init_debugfs(void)
   if (!junk) {
     printk(KERN_ALERT "debugfs: failed to create /sys/kernel/debug/actmon/mccpu_count\n");
   }
+  */
 
   debugfs_create_u32("EnableACTMON", 0444, actmon_dir, &EnableACTMON);
   debugfs_create_u32("MCALL_AVG", 0444, actmon_dir, &MCALL_AVG);
+  /*
   debugfs_create_u32("MCCPU_AVG", 0444, actmon_dir, &MCCPU_AVG);
+  */
 
   return 0;
 }
