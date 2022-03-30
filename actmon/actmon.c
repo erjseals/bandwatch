@@ -67,6 +67,7 @@ static int set_actmon_op(void *data, u64 value)
 
   // Setting for 10 usec
   bitWise = (1 << 8) | (0x9);
+  //bitWise = 0;
 
   io = ioremap(ACTMON_ADDRESS + ACTMON_GLB_PERIOD_CTRL_0, 32);
   iowrite32( bitWise , io);
