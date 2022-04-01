@@ -69,6 +69,9 @@ static u32 throttleLimit  = 0;
 int g_time_interval = 1000;
 struct timer_list g_timer;
 
+// Make this globally constant later
+int MAX_BANDWIDTH = 12500;
+
 /**************************************************************************
  * Functions 
  **************************************************************************/
@@ -113,7 +116,7 @@ static int set_limit_op(void *data, u64 value)
 
 }
 
-int set_throttle(u64 value)
+int set_throttle(u32 value)
 {
   u32 bitWise = 0;
 
@@ -129,10 +132,9 @@ int set_throttle(u64 value)
   return 0;
 }
 
-void _TimerHandler(struct timer_list *timer)
+//void _TimerHandler(struct timer_list *timer)
+void _TimerHandler(unsigned long data)
 {
-  // Make this globally constant later
-  int MAX_BANDWIDTH = 12500;
   /* 1. Check Current MC Bandwidth */
   /* 2.a. If above threshold, increase throttle */
 
@@ -151,8 +153,6 @@ void _TimerHandler(struct timer_list *timer)
 
   /* Rewind the Timer */
   mod_timer(&g_timer, jiffies + msecs_to_jiffies(g_time_interval));
-
-  printk(KERN_INFO "Timer reset by Handler\n");
 }
 
 // value is unused, clean this up later
@@ -274,7 +274,8 @@ static int __init bandWatch_init(void) {
   bandWatch_init_debugfs();
 
   /* Start the periodic timer */
-  timer_setup(&g_timer, _TimerHandler, 0);
+  // timer_setup(&g_timer, _TimerHandler, 0);
+  setup_timer(&g_timer, _TimerHandler, 0);
   mod_timer(&g_timer, jiffies + msecs_to_jiffies(g_time_interval));
 
   printk(KERN_INFO "bandWatch module has been loaded\n");
