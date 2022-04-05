@@ -51,6 +51,13 @@ MODULE_AUTHOR("Eric Seals <ericseals@ku.edu>");
 #define ACTMON_MCCPU_COUNT_0		      0x21c
 #define ACTMON_MCCPU_AVG_COUNT_0	    0x220
 
+/**************************************************************************
+ * Constants 
+ **************************************************************************/
+
+#define THROTTLE_MAX  10
+#define THROTTLE_MIN  0
+
 
 /**************************************************************************
  * Global Variables
@@ -70,7 +77,13 @@ int g_time_interval = 1000;
 struct timer_list g_timer;
 
 // Make this globally constant later
-int MAX_BANDWIDTH = 12500;
+int MAX_BANDWIDTH = 10000;
+
+// Memory Locations
+void __iomem *io_throttle;
+void __iomem *io_limit;
+void __iomem *io_arbitration;
+void __iomem *io_avgcount;
 
 /**************************************************************************
  * Functions 
@@ -83,10 +96,9 @@ static int set_throttle_op(void *data, u64 value)
   // Define Throttling amount
   // Bits 20:16 set throttling amount when limit is exceeded
   // Bits 4:0 set throttling for when limit not exceeded
-  void __iomem *io = ioremap(MC_EMEM_ARB_RING1_THROTTLE_0, 32);
 
   bitWise = (value << 16) | value;
-  iowrite32( bitWise , io);
+  iowrite32( bitWise , io_throttle);
 
   throttleAmount = value;
   return 0;
@@ -100,20 +112,17 @@ static int set_limit_op(void *data, u64 value)
   // Bits 8:0 sets the request limit
   u32 bitWise = ~(1 << 31);
 
-  void __iomem *io = ioremap(MC_EMEM_ARB_OUTSTANDING_REQ_0, 32);
   // Clear the low 8 bits
   // to be or-ed with limit
   bitWise = bitWise & 0x11111E00;
-  iowrite32( ( (ioread32(io) & bitWise) | value ) , io);
+  iowrite32( ( (ioread32(io_limit) & bitWise) | value ) , io_limit);
 
   // Enable Ring1 Arbitration
   bitWise = 0x80008000;
-  io = ioremap(MC_EMEM_ARB_RING0_THROTTLE_MASK_0, 32);
-  iowrite32( bitWise , io);
+  iowrite32( bitWise , io_arbitration);
 
   throttleLimit = value;
   return 0;
-
 }
 
 int set_throttle(u32 value)
@@ -123,10 +132,9 @@ int set_throttle(u32 value)
   // Define Throttling amount
   // Bits 20:16 set throttling amount when limit is exceeded
   // Bits 4:0 set throttling for when limit not exceeded
-  void __iomem *io = ioremap(MC_EMEM_ARB_RING1_THROTTLE_0, 32);
 
   bitWise = (value << 16) | value;
-  iowrite32( bitWise , io);
+  iowrite32( bitWise , io_throttle);
 
   throttleAmount = value;
   return 0;
@@ -137,25 +145,29 @@ void _TimerHandler(unsigned long data)
 {
   /* 1. Check Current MC Bandwidth */
   /* 2.a. If above threshold, increase throttle */
+  /* 2.b. If below threshold, decrease throttle */
+
+  MCALL_AVG = ioread32(io_avgcount);
 
   if (MCALL_AVG > MAX_BANDWIDTH) {
-    if (throttleAmount < 31) {
+    if (throttleAmount < THROTTLE_MAX) {
       set_throttle(throttleAmount + 1);
+      printk(KERN_INFO "MCALL above: %u, throttleAmount: %u\n", MCALL_AVG, throttleAmount);
     }
   }
 
-  /* 2.b. If below threshold, decrease throttle */
   if (MCALL_AVG <= MAX_BANDWIDTH) {
-    if (throttleAmount > 0) {
+    if (throttleAmount > THROTTLE_MIN) {
       set_throttle(throttleAmount - 1);
+      printk(KERN_INFO "MCALL below: %u, throttleAmount: %u\n", MCALL_AVG, throttleAmount);
     }
   }
+
 
   /* Rewind the Timer */
   mod_timer(&g_timer, jiffies + msecs_to_jiffies(g_time_interval));
 }
 
-// value is unused, clean this up later
 static int set_actmon_op(void *data, u64 value)
 {
   // Initialize Global Enable
@@ -172,7 +184,6 @@ static int set_actmon_op(void *data, u64 value)
 
   // Setting for 10 usec
   bitWise = (1 << 8) | (0x9);
-  //bitWise = 0;
 
   io = ioremap(ACTMON_ADDRESS + ACTMON_GLB_PERIOD_CTRL_0, 32);
   iowrite32( bitWise , io);
@@ -195,13 +206,11 @@ static int set_actmon_op(void *data, u64 value)
   return 0;
 }
 
+// Read the number of avg cycles 
+// This will be placed in file mcall_count
 static int set_mcall_count_op(void *data, u64 value)
 {
-  // Read the number of avg cycles 
-  // This will be placed in file mcall_count
-  void __iomem *io = ioremap(ACTMON_ADDRESS + ACTMON_MCALL_AVG_COUNT_0, 32);
-
-  MCALL_AVG = ioread32(io);
+  MCALL_AVG = ioread32(io_avgcount);
   return 0;
 }
 
@@ -265,6 +274,12 @@ static int bandWatch_init_debugfs(void)
   debugfs_create_u32("MCALL_AVG", 0444, bandWatch_dir, &MCALL_AVG);
   debugfs_create_u32("throttleLimit", 0444, bandWatch_dir, &throttleLimit);
   debugfs_create_u32("throttleAmount", 0444, bandWatch_dir, &throttleAmount);
+
+  // Initialize Memory Locations
+  io_throttle = ioremap(MC_EMEM_ARB_RING1_THROTTLE_0, 32);
+  io_limit = ioremap(MC_EMEM_ARB_OUTSTANDING_REQ_0, 32);
+  io_arbitration = ioremap(MC_EMEM_ARB_RING0_THROTTLE_MASK_0, 32);
+  io_avgcount = ioremap(ACTMON_ADDRESS + ACTMON_MCALL_AVG_COUNT_0, 32);
 
   return 0;
 }
