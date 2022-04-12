@@ -17,7 +17,7 @@ MODULE_AUTHOR("Eric Seals <ericseals@ku.edu>");
  **************************************************************************/
 
 // Base Address
-#define MC_ADDRESS 0x70019000
+#define MC_ADDRESS                          0x70019000
 #define MC_EMEM_ARB_OUTSTANDING_REQ_0       0x70019094
 #define MC_EMEM_ARB_RING1_THROTTLE_0        0x700190e0
 #define MC_EMEM_ARB_RING3_THROTTLE_0        0x700190e4
@@ -31,25 +31,25 @@ MODULE_AUTHOR("Eric Seals <ericseals@ku.edu>");
  **************************************************************************/
 
 // Base Address
-#define ACTMON_ADDRESS                0x6000c800
+#define ACTMON_ADDRESS                      0x6000c800
 
 // Offsets
 
 // Global Enable
-#define ACTMON_GLB_STATUS_0		        0x0
-#define ACTMON_GLB_PERIOD_CTRL_0      0x4
+#define ACTMON_GLB_STATUS_0		              0x0
+#define ACTMON_GLB_PERIOD_CTRL_0            0x4
 
 // All Memory Controller Traffic
-#define ACTMON_MCALL_CTRL_0		        0x1c0
-#define ACTMON_MCALL_INIT_AVG_0       0x1cc
-#define ACTMON_MCALL_COUNT_0          0x1dc
-#define ACTMON_MCALL_AVG_COUNT_0	    0x1e0
+#define ACTMON_MCALL_CTRL_0		              0x1c0
+#define ACTMON_MCALL_INIT_AVG_0             0x1cc
+#define ACTMON_MCALL_COUNT_0                0x1dc
+#define ACTMON_MCALL_AVG_COUNT_0	          0x1e0
 
 // Only CPU Memory Controller Traffic
-#define ACTMON_MCCPU_CTRL_0		        0x200
-#define ACTMON_MCCPU_INIT_AVG_0		    0x20c
-#define ACTMON_MCCPU_COUNT_0		      0x21c
-#define ACTMON_MCCPU_AVG_COUNT_0	    0x220
+#define ACTMON_MCCPU_CTRL_0		              0x200
+#define ACTMON_MCCPU_INIT_AVG_0		          0x20c
+#define ACTMON_MCCPU_COUNT_0		            0x21c
+#define ACTMON_MCCPU_AVG_COUNT_0	          0x220
 
 /**************************************************************************
  * Constants 
@@ -57,6 +57,7 @@ MODULE_AUTHOR("Eric Seals <ericseals@ku.edu>");
 
 #define THROTTLE_MAX  10
 #define THROTTLE_MIN  0
+#define MAX_BANDWIDTH 10000
 
 
 /**************************************************************************
@@ -75,9 +76,6 @@ static u32 throttleLimit  = 0;
 // 1ms period
 int g_time_interval = 1000;
 struct timer_list g_timer;
-
-// Make this globally constant later
-int MAX_BANDWIDTH = 10000;
 
 // Memory Locations
 void __iomem *io_throttle;
@@ -162,7 +160,6 @@ void _TimerHandler(unsigned long data)
       printk(KERN_INFO "MCALL below: %u, throttleAmount: %u\n", MCALL_AVG, throttleAmount);
     }
   }
-
 
   /* Rewind the Timer */
   mod_timer(&g_timer, jiffies + msecs_to_jiffies(g_time_interval));
