@@ -55,7 +55,7 @@ MODULE_AUTHOR("Eric Seals <ericseals@ku.edu>");
  * Constants 
  **************************************************************************/
 
-#define THROTTLE_MAX  10
+#define THROTTLE_MAX  16
 #define THROTTLE_MIN  0
 #define MAX_BANDWIDTH 10000
 
@@ -149,7 +149,7 @@ void _TimerHandler(unsigned long data)
 
   if (MCALL_AVG > MAX_BANDWIDTH) {
     if (throttleAmount < THROTTLE_MAX) {
-      set_throttle(throttleAmount + 1);
+      set_throttle(throttleAmount + 10);
       printk(KERN_INFO "MCALL above: %u, throttleAmount: %u\n", MCALL_AVG, throttleAmount);
     }
   }
