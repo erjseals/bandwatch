@@ -57,8 +57,7 @@ MODULE_AUTHOR("Eric Seals <ericseals@ku.edu>");
 
 #define THROTTLE_MAX  16
 #define THROTTLE_MIN  0
-#define MAX_BANDWIDTH 10000
-
+#define MAX_UTILIZATION 10000
 
 /**************************************************************************
  * Global Variables
@@ -141,23 +140,23 @@ int set_throttle(u32 value)
 //void _TimerHandler(struct timer_list *timer)
 void _TimerHandler(unsigned long data)
 {
-  /* 1. Check Current MC Bandwidth */
+  /* 1. Check Current MC Utilization */
   /* 2.a. If above threshold, increase throttle */
   /* 2.b. If below threshold, decrease throttle */
 
   MCALL_AVG = ioread32(io_avgcount);
 
-  if (MCALL_AVG > MAX_BANDWIDTH) {
+  if (MCALL_AVG > MAX_UTILIZATION) {
     if (throttleAmount < THROTTLE_MAX) {
       set_throttle(throttleAmount + 10);
-      printk(KERN_INFO "MCALL above: %u, throttleAmount: %u\n", MCALL_AVG, throttleAmount);
+      trace_printk("MCALL above: %u, throttleAmount: %u\n", MCALL_AVG, throttleAmount);
     }
   }
 
-  if (MCALL_AVG <= MAX_BANDWIDTH) {
+  if (MCALL_AVG <= MAX_UTILIZATION) {
     if (throttleAmount > THROTTLE_MIN) {
       set_throttle(throttleAmount - 1);
-      printk(KERN_INFO "MCALL below: %u, throttleAmount: %u\n", MCALL_AVG, throttleAmount);
+      trace_printk("MCALL below: %u, throttleAmount: %u\n", MCALL_AVG, throttleAmount);
     }
   }
 
