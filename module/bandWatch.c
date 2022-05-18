@@ -222,7 +222,7 @@ static int bandWatch_init_debugfs(void)
   bandWatch_dir = debugfs_create_dir("bandWatch", NULL);
   if (!bandWatch_dir) {
     // Abort module load
-    printk(KERN_ALERT "debugfs: failed to create /sys/kernel/debug/bandWatch\n");
+    trace_printk("debugfs: failed to create /sys/kernel/debug/bandWatch\n");
     return -1;
   }
 
@@ -233,7 +233,7 @@ static int bandWatch_init_debugfs(void)
           NULL,
           &throttle_fops);
   if (!junk) {
-    printk(KERN_ALERT "debugfs: failed to create /sys/kernel/debug/bandWatch/throttle\n");
+    trace_printk("debugfs: failed to create /sys/kernel/debug/bandWatch/throttle\n");
   }
 
   junk = debugfs_create_file(
@@ -243,7 +243,7 @@ static int bandWatch_init_debugfs(void)
           NULL,
           &limit_fops);
   if (!junk) {
-    printk(KERN_ALERT "debugfs: failed to create /sys/kernel/debug/bandWatch/limit\n");
+    trace_printk("debugfs: failed to create /sys/kernel/debug/bandWatch/limit\n");
   }
 
   junk = debugfs_create_file(
@@ -253,7 +253,7 @@ static int bandWatch_init_debugfs(void)
           NULL,
           &actmon_fops);
   if (!junk) {
-    printk(KERN_ALERT "debugfs: failed to create /sys/kernel/debug/bandWatch/actmon\n");
+    trace_printk("debugfs: failed to create /sys/kernel/debug/bandWatch/actmon\n");
   }
   
   junk = debugfs_create_file(
@@ -263,7 +263,7 @@ static int bandWatch_init_debugfs(void)
           NULL,
           &mcall_count_fops);
   if (!junk) {
-    printk(KERN_ALERT "debugfs: failed to create /sys/kernel/debug/bandWatch/mcall_count\n");
+    trace_printk("debugfs: failed to create /sys/kernel/debug/bandWatch/mcall_count\n");
   }
 
   debugfs_create_u32("enableActmon", 0444, bandWatch_dir, &enableActmon);
@@ -289,7 +289,7 @@ static int __init bandWatch_init(void) {
   setup_timer(&g_timer, _TimerHandler, 0);
   mod_timer(&g_timer, jiffies + msecs_to_jiffies(g_time_interval));
 
-  printk(KERN_INFO "bandWatch module has been loaded\n");
+  trace_printk("bandWatch module has been loaded\n");
   return 0;
 }
 
@@ -300,7 +300,7 @@ static void __exit bandWatch_exit(void) {
   /* Delete the timer */
   del_timer(&g_timer);
 
-  printk(KERN_INFO "bandWatch module has been unloaded\n");
+  trace_printk("bandWatch module has been unloaded\n");
 }
 
 module_init(bandWatch_init);
