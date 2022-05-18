@@ -72,8 +72,8 @@ static u32 throttleAmount = 0;
 static u32 throttleLimit  = 0;
 
 // Timer Values
-// 10us period
-int g_time_interval = 10;
+// 1ms period
+int g_time_interval = 1;
 struct timer_list g_timer;
 
 // Memory Locations
