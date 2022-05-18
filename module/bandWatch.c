@@ -72,8 +72,8 @@ static u32 throttleAmount = 0;
 static u32 throttleLimit  = 0;
 
 // Timer Values
-// 1ms period
-int g_time_interval = 1000;
+// 10us period
+int g_time_interval = 10;
 struct timer_list g_timer;
 
 // Memory Locations
@@ -148,7 +148,7 @@ void _TimerHandler(unsigned long data)
 
   if (MCALL_AVG > MAX_UTILIZATION) {
     if (throttleAmount < THROTTLE_MAX) {
-      set_throttle(throttleAmount + 10);
+      set_throttle(throttleAmount + 1);
       trace_printk("MCALL above: %u, throttleAmount: %u\n", MCALL_AVG, throttleAmount);
     }
   }
