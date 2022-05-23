@@ -12,6 +12,8 @@
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Eric Seals <ericseals@ku.edu>");
 
+#define TIMER 0
+
 /**************************************************************************
  * Throttle Addresses 
  **************************************************************************/
@@ -42,12 +44,14 @@ MODULE_AUTHOR("Eric Seals <ericseals@ku.edu>");
 // All Memory Controller Traffic
 #define ACTMON_MCALL_CTRL_0		              0x1c0
 #define ACTMON_MCALL_INIT_AVG_0             0x1cc
+#define ACTMON_MCALL_COUNT_WEIGHT_0         0x128
 #define ACTMON_MCALL_COUNT_0                0x1dc
 #define ACTMON_MCALL_AVG_COUNT_0	          0x1e0
 
 // Only CPU Memory Controller Traffic
 #define ACTMON_MCCPU_CTRL_0		              0x200
 #define ACTMON_MCCPU_INIT_AVG_0		          0x20c
+#define ACTMON_MCCPU_COUNT_WEIGHT_0         0x218
 #define ACTMON_MCCPU_COUNT_0		            0x21c
 #define ACTMON_MCCPU_AVG_COUNT_0	          0x220
 
@@ -63,13 +67,15 @@ MODULE_AUTHOR("Eric Seals <ericseals@ku.edu>");
  * Global Variables
  **************************************************************************/
 
-static struct dentry *bandWatch_dir = 0;
+static struct dentry *bandwatch_dir = 0;
 
-static u32 enableActmon = 0;
-static u32 MCALL_AVG = 0;
+static u32 mc_all_avg = 0;
+static u32 mc_cpu_avg = 0;
+static u32 mc_all_count = 0;
+static u32 mc_cpu_count = 0;
 
-static u32 throttleAmount = 0;
-static u32 throttleLimit  = 0;
+static u32 throttle_amount = 0;
+static u32 throttle_limit  = 0;
 
 // Timer Values
 // 1ms period
@@ -80,7 +86,8 @@ struct timer_list g_timer;
 void __iomem *io_throttle;
 void __iomem *io_limit;
 void __iomem *io_arbitration;
-void __iomem *io_avgcount;
+void __iomem *io_mc_all_avg_count;
+void __iomem *io_mc_cpu_avg_count;
 
 /**************************************************************************
  * Functions 
@@ -97,7 +104,7 @@ static int set_throttle_op(void *data, u64 value)
   bitWise = (value << 16) | value;
   iowrite32( bitWise , io_throttle);
 
-  throttleAmount = value;
+  throttle_amount = value;
   return 0;
 }
 
@@ -118,7 +125,7 @@ static int set_limit_op(void *data, u64 value)
   bitWise = 0x80008000;
   iowrite32( bitWise , io_arbitration);
 
-  throttleLimit = value;
+  throttle_limit = value;
   return 0;
 }
 
@@ -133,175 +140,187 @@ int set_throttle(u32 value)
   bitWise = (value << 16) | value;
   iowrite32( bitWise , io_throttle);
 
-  throttleAmount = value;
+  throttle_amount = value;
   return 0;
 }
 
-//void _TimerHandler(struct timer_list *timer)
 void _TimerHandler(unsigned long data)
 {
+  u32 mc_gpu_avg = 0;
+
   /* 1. Check Current MC Utilization */
   /* 2.a. If above threshold, increase throttle */
   /* 2.b. If below threshold, decrease throttle */
+  
+  mc_all_avg = ioread32(io_mc_all_avg_count);
+  mc_cpu_avg = ioread32(io_mc_cpu_avg_count);
 
-  MCALL_AVG = ioread32(io_avgcount);
+  mc_gpu_avg = mc_all_avg - mc_cpu_avg;
 
-  if (MCALL_AVG > MAX_UTILIZATION) {
-    if (throttleAmount < THROTTLE_MAX) {
-      set_throttle(throttleAmount + 1);
-      trace_printk("MCALL above: %u, throttleAmount: %u\n", MCALL_AVG, throttleAmount);
+  trace_printk("mc_all_avg: %u, mc_cpu_avg: %u, mc_gpu_avg: %u\n", mc_all_avg, mc_cpu_avg, mc_gpu_avg);
+
+  /*
+  if (mc_all_avg > MAX_UTILIZATION) {
+    if (throttle_amount < THROTTLE_MAX) {
+      set_throttle(throttle_amount + 1);
+      trace_printk("mc_all_avg above: %u, throttle_amount: %u\n", mc_all_avg, throttle_amount);
     }
   }
 
-  if (MCALL_AVG <= MAX_UTILIZATION) {
-    if (throttleAmount > THROTTLE_MIN) {
-      set_throttle(throttleAmount - 1);
-      trace_printk("MCALL below: %u, throttleAmount: %u\n", MCALL_AVG, throttleAmount);
+  if (mc_all_avg<= MAX_UTILIZATION) {
+    if (throttle_amount > THROTTLE_MIN) {
+      set_throttle(throttle_amount - 1);
+      trace_printk("mc_all_avg below: %u, throttle_amount: %u\n", mc_all_avg, throttle_amount);
     }
   }
+  */
 
+#if TIMER
   /* Rewind the Timer */
   mod_timer(&g_timer, jiffies + msecs_to_jiffies(g_time_interval));
+#endif
 }
 
 static int set_actmon_op(void *data, u64 value)
 {
-  // Initialize Global Enable
-  // MCALL bit 9
-  // MCCPU bit 8 
-  u32 bitWise = (1 << 9);
-
-  void __iomem *io = ioremap(ACTMON_ADDRESS + ACTMON_GLB_STATUS_0, 32);
-  iowrite32( (ioread32(io) | bitWise) , io);
-
   // Initialize Global Period
   // Writing 1/0 to bit 8 sets period time base in usec/msec
   // Writing n to bits 7:0 creates a n+1 usec/msec sampling period
 
   // Setting for 10 usec
-  bitWise = (1 << 8) | (0x9);
+  u32 bitWise = (1 << 8) | (0x9);
 
-  io = ioremap(ACTMON_ADDRESS + ACTMON_GLB_PERIOD_CTRL_0, 32);
+  void __iomem *io = ioremap(ACTMON_ADDRESS + ACTMON_GLB_PERIOD_CTRL_0, 32);
   iowrite32( bitWise , io);
 
-  // MCALL
-  //
+  // mc_all 
+  // Enable MC Activity Monitor
+  // Write 1 to bit 31
+  io = ioremap(ACTMON_ADDRESS + ACTMON_MCALL_CTRL_0, 32);
+  bitWise = (1 << 31);
+  iowrite32( (ioread32(io) | bitWise) , io);
+
+  // Initialize the Weight to 0x400 
+  bitWise = 0x400;
+  io = ioremap(ACTMON_ADDRESS + ACTMON_MCALL_COUNT_WEIGHT_0, 32);
+  iowrite32( bitWise , io);
+
   // Initialize the AVG Count to 0
   bitWise = 0;
   io = ioremap(ACTMON_ADDRESS + ACTMON_MCALL_INIT_AVG_0, 32);
   iowrite32( bitWise , io);
 
+
+  // mc_cpu
   // Enable MC Activity Monitor
   // Write 1 to bit 31
-  io = ioremap(ACTMON_ADDRESS + ACTMON_MCALL_CTRL_0, 32);
-
+  io = ioremap(ACTMON_ADDRESS + ACTMON_MCCPU_CTRL_0, 32);
   bitWise = (1 << 31);
   iowrite32( (ioread32(io) | bitWise) , io);
 
-  enableActmon = bitWise;
-  return 0;
-}
+  // Initialize the Weight to 0x400 
+  bitWise = 0x400;
+  io = ioremap(ACTMON_ADDRESS + ACTMON_MCCPU_COUNT_WEIGHT_0, 32);
+  iowrite32( bitWise , io);
 
-// Read the number of avg cycles 
-// This will be placed in file mcall_count
-static int set_mcall_count_op(void *data, u64 value)
-{
-  MCALL_AVG = ioread32(io_avgcount);
+  // Initialize the AVG Count to 0
+  bitWise = 0;
+  io = ioremap(ACTMON_ADDRESS + ACTMON_MCCPU_INIT_AVG_0, 32);
+  iowrite32( bitWise , io);
+
   return 0;
 }
 
 DEFINE_SIMPLE_ATTRIBUTE(actmon_fops, NULL, set_actmon_op, "%llu\n");
-DEFINE_SIMPLE_ATTRIBUTE(mcall_count_fops, NULL, set_mcall_count_op, "%llu\n");
 DEFINE_SIMPLE_ATTRIBUTE(throttle_fops, NULL, set_throttle_op, "%llu\n");
 DEFINE_SIMPLE_ATTRIBUTE(limit_fops, NULL, set_limit_op, "%llu\n");
 
-static int bandWatch_init_debugfs(void)
+static int bandwatch_init_debugfs(void)
 {
   struct dentry *junk;
 
-  bandWatch_dir = debugfs_create_dir("bandWatch", NULL);
-  if (!bandWatch_dir) {
+  bandwatch_dir = debugfs_create_dir("bandwatch", NULL);
+  if (!bandwatch_dir) {
     // Abort module load
-    trace_printk("debugfs: failed to create /sys/kernel/debug/bandWatch\n");
+    trace_printk("debugfs: failed to create /sys/kernel/debug/bandwatch\n");
     return -1;
   }
 
   junk = debugfs_create_file(
           "throttle",
           0444,
-          bandWatch_dir,
+          bandwatch_dir,
           NULL,
           &throttle_fops);
   if (!junk) {
-    trace_printk("debugfs: failed to create /sys/kernel/debug/bandWatch/throttle\n");
+    trace_printk("debugfs: failed to create /sys/kernel/debug/bandwatch/throttle\n");
   }
 
   junk = debugfs_create_file(
           "limit",
           0444,
-          bandWatch_dir,
+          bandwatch_dir,
           NULL,
           &limit_fops);
   if (!junk) {
-    trace_printk("debugfs: failed to create /sys/kernel/debug/bandWatch/limit\n");
+    trace_printk("debugfs: failed to create /sys/kernel/debug/bandwatch/limit\n");
   }
 
   junk = debugfs_create_file(
           "actmon",
           0444,
-          bandWatch_dir,
+          bandwatch_dir,
           NULL,
           &actmon_fops);
   if (!junk) {
-    trace_printk("debugfs: failed to create /sys/kernel/debug/bandWatch/actmon\n");
+    trace_printk("debugfs: failed to create /sys/kernel/debug/bandwatch/actmon\n");
   }
   
-  junk = debugfs_create_file(
-          "mcall_count",
-          0444,
-          bandWatch_dir,
-          NULL,
-          &mcall_count_fops);
-  if (!junk) {
-    trace_printk("debugfs: failed to create /sys/kernel/debug/bandWatch/mcall_count\n");
-  }
 
-  debugfs_create_u32("enableActmon", 0444, bandWatch_dir, &enableActmon);
-  debugfs_create_u32("MCALL_AVG", 0444, bandWatch_dir, &MCALL_AVG);
-  debugfs_create_u32("throttleLimit", 0444, bandWatch_dir, &throttleLimit);
-  debugfs_create_u32("throttleAmount", 0444, bandWatch_dir, &throttleAmount);
+  debugfs_create_u32("mc_all_avg", 0444, bandwatch_dir, &mc_all_avg);
+  debugfs_create_u32("mc_all_count", 0444, bandwatch_dir, &mc_all_count);
+  debugfs_create_u32("mc_cpu_avg", 0444, bandwatch_dir, &mc_cpu_avg);
+  debugfs_create_u32("mc_cpu_count", 0444, bandwatch_dir, &mc_cpu_count);
+  debugfs_create_u32("throttle_limit", 0444, bandwatch_dir, &throttle_limit);
+  debugfs_create_u32("throttle_amount", 0444, bandwatch_dir, &throttle_amount);
 
   // Initialize Memory Locations
   io_throttle = ioremap(MC_EMEM_ARB_RING1_THROTTLE_0, 32);
   io_limit = ioremap(MC_EMEM_ARB_OUTSTANDING_REQ_0, 32);
   io_arbitration = ioremap(MC_EMEM_ARB_RING0_THROTTLE_MASK_0, 32);
-  io_avgcount = ioremap(ACTMON_ADDRESS + ACTMON_MCALL_AVG_COUNT_0, 32);
+  io_mc_all_avg_count = ioremap(ACTMON_ADDRESS + ACTMON_MCALL_AVG_COUNT_0, 32);
+  io_mc_cpu_avg_count = ioremap(ACTMON_ADDRESS + ACTMON_MCCPU_AVG_COUNT_0, 32);
 
   return 0;
 }
 
 
-static int __init bandWatch_init(void) {
-  bandWatch_init_debugfs();
+static int __init bandwatch_init(void) {
+  bandwatch_init_debugfs();
 
+#if TIMER
   /* Start the periodic timer */
+  // 
   // timer_setup(&g_timer, _TimerHandler, 0);
   setup_timer(&g_timer, _TimerHandler, 0);
   mod_timer(&g_timer, jiffies + msecs_to_jiffies(g_time_interval));
+#endif
 
-  trace_printk("bandWatch module has been loaded\n");
+  trace_printk("bandwatch module has been loaded\n");
   return 0;
 }
 
-static void __exit bandWatch_exit(void) {
+static void __exit bandwatch_exit(void) {
   /* remove debugfs entries */
-  debugfs_remove_recursive(bandWatch_dir);
+  debugfs_remove_recursive(bandwatch_dir);
 
+#if TIMER
   /* Delete the timer */
   del_timer(&g_timer);
+#endif
 
-  trace_printk("bandWatch module has been unloaded\n");
+  trace_printk("bandwatch module has been unloaded\n");
 }
 
-module_init(bandWatch_init);
-module_exit(bandWatch_exit);
+module_init(bandwatch_init);
+module_exit(bandwatch_exit);

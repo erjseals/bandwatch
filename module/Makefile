@@ -1,4 +1,4 @@
-obj-m += bandWatch.o
+obj-m += bandwatch.o
 
 all:
 	make -C /lib/modules/$(shell uname -r)/build M=$(PWD) modules
