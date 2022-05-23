@@ -1,0 +1,11 @@
+ERROR: INVALID INPUT FILE:cycles/multi_ncut/C_fullhd.txt
+multi_ncut           C	vga                842167362717
+
+multi_ncut           C	simfast              64107234
+
+multi_ncut           C	sim                1482467301
+
+multi_ncut           C	test                  5768127
+
+multi_ncut           C	cif                693396922152
+

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test>
+
+<id>
+test1
+</id>
+
+<iterations>
+10
+</iterations>
+
+<postprocstr>
+| grep HESOCMARK >>  __THIS_FILENAME__
+</postprocstr>
+
+<UT cmdLine="CPUapp" args="" core="0" engine="CPU0"> </UT>
+<IF cmdLine="DLAapp" args="--useDLA0" core="1" engine="DLA0"> </IF>
+<IF cmdLine="DLAapp" args="--useDLA1" core="2" engine="DLA1"> </IF>
+<IF cmdLine="PVAapp" args="--usePVA" core="3" engine="PVA"> </IF>
+<IF cmdLine="GPUapp" args="cudaMemset" core="4" engine="GPU"> </IF>
+<IF cmdLine="CPUmeminterf" args="" core="5,6,7" engine="CPU"> </IF>
+
+</test>

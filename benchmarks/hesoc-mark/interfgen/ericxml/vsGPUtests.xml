@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test>
+
+<id>
+t1
+</id>
+
+<iterations>
+1
+</iterations>
+
+<postprocstr>
+ | grep HESOCMARK >>  __THIS_FILENAME__
+</postprocstr>
+
+<sleep_s>
+10
+</sleep_s>
+
+<UT cmdLine="../../cuda/cudameasure" args="51200000 50 dryrun" core="0" engine="GPU"> </UT>
+<IF cmdLine="../../membench/meminterf" args="-v --size=128 --test=memcpy --iterations=10000" core="1,2,3" engine="CPUs"></IF>
+
+</test>

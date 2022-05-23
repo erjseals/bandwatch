@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test>
+
+<id>
+t1
+</id>
+
+<iterations>
+1
+</iterations>
+
+<sleep_s>
+10
+</sleep_s>
+
+<postprocstr>
+| grep HESOCMARK >>  __THIS_FILENAME__
+</postprocstr>
+
+<UT cmdLine="../../membench/membench" args="" core="0" engine="CPU0"> </UT>
+<IF cmdLine="../../trtdla/testDLA" args="-f ../../trtdla/ser_eng_dla0.trt --useDLACore=0 --iterations=10000" core="2" engine="DLA0"></IF>
+<IF cmdLine="../../trtdla/testDLA" args="-f ../../trtdla/ser_eng_dla0.trt --useDLACore=1 --iterations=10000" core="4" engine="DLA1"></IF>
+
+</test>

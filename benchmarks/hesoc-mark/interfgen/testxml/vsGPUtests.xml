@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test>
+
+<id>
+t1
+</id>
+
+<iterations>
+1
+</iterations>
+
+<postprocstr>
+ | grep HESOCMARK >>  __THIS_FILENAME__
+</postprocstr>
+
+<sleep_s>
+10
+</sleep_s>
+
+<UT cmdLine="../../cuda/cudameasure" args="51200000 50 dryrun" core="0" engine="GPU"> </UT>
+<IF cmdLine="../../trtdla/testDLA" args="-f ../../trtdla/ser_eng_dla0.trt --iterations=1999 --useDLACore=0" core="1" engine="DLA0"></IF>
+<IF cmdLine="../../trtdla/testDLA" args="-f ../../trtdla/ser_eng_dla0.trt --iterations=1999 --useDLACore=1" core="2" engine="DLA1"></IF>
+<IF cmdLine="../../vpipva/vpipva" args="3000 pva 8 6 6 6 6 6 6 6 6" core="3" engine="PVA"></IF>
+<IF cmdLine="../../membench/meminterf" args="-v --size=128 --test=memcpy --iterations=10000" core="4,5,6,7" engine="CPUs"></IF>
+
+</test>

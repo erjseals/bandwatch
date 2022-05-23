@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test>
+
+<id>
+tBICG
+</id>
+
+<iterations>
+1
+</iterations>
+
+<postprocstr>
+ | grep HESOCMARK >>  __THIS_FILENAME__
+</postprocstr>
+
+<sleep_s>
+10
+</sleep_s>
+
+<UT cmdLine="../../cpubench/cpubench" args="-d 8192 -v --iterations=50 --test=BICG" core="0" engine="CPU"> </UT>
+<IF cmdLine="../../membench/meminterf" args="-v --size=128 --test=memcpy --iterations=10000" core="1" engine="CPU1"></IF>
+<IF cmdLine="../../trtdla/testDLA" args="-f ../../trtdla/ser_eng_dla0.trt --iterations=1999 --useDLACore=0" core="2" engine="DLA0"></IF>
+<IF cmdLine="../../trtdla/testDLA" args="-f ../../trtdla/ser_eng_dla0.trt --iterations=1999 --useDLACore=1" core="3" engine="DLA1"></IF>
+<IF cmdLine="../../vpipva/vpipva" args="3000 pva 8 6 6 6 6 6 6 6 6" core="4" engine="PVA"></IF>
+<IF cmdLine="../../cuda/cudainterf" args="-v -d 102400 --iterations=15255 --mode=memset" core="5" engine="GPUms"></IF>
+<IF cmdLine="../../membench/meminterf" args="-v --size=128 --test=memcpy --iterations=10000" core="6,7" engine="CPUs"></IF>
+
+</test>

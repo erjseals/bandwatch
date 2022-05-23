@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test>
+
+<id>
+t1
+</id>
+
+<iterations>
+1
+</iterations>
+
+<postprocstr>
+| grep HESOCMARK >>  __THIS_FILENAME__
+</postprocstr>
+
+<sleep_s>
+10
+</sleep_s>
+
+<UT cmdLine="../../membench/membench" args="-r" core="0" engine="CPU0"> </UT>
+<IF cmdLine="../../membench/meminterf" args="-v --size=128 --test=memcpy --iterations=10000" core="1" engine="CPU1"></IF>
+<IF cmdLine="../../vpipva/vpipva" args="3000 pva 8 6 6 6 6 6 6 6 6" core="2" engine="PVA"></IF>
+<IF cmdLine="../../cuda/cudainterf" args="-v -d 102400 --iterations=7255 --mode=d2d" core="3" engine="GPUd2d"></IF>
+<IF cmdLine="../../trtdla/testDLA" args="-f ../../trtdla/ser_eng_dla0.trt --iterations=1999 --useDLACore=0" core="4" engine="DLA0"></IF>
+<IF cmdLine="../../trtdla/testDLA" args="-f ../../trtdla/ser_eng_dla0.trt --iterations=1999 --useDLACore=1" core="5" engine="DLA1"></IF>
+<IF cmdLine="../../membench/meminterf" args="-v --size=128 --test=memcpy --iterations=10000" core="6" engine="CPU6"></IF>
+<IF cmdLine="../../membench/meminterf" args="-v --size=128 --test=memcpy --iterations=10000" core="7" engine="CPU7"></IF>
+
+
+</test>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test>
+
+<id>
+t1
+</id>
+
+<iterations>
+1
+</iterations>
+
+<postprocstr>
+| grep HESOCMARK >>  __THIS_FILENAME__
+</postprocstr>
+
+<UT cmdLine="../../membench/membench" args="" core="0" engine="CPU0"> </UT>
+<IF cmdLine="../../cuda/cudainterf" args="-v -d 102400 --iterations=1055 --mode=memcpy" core="2" engine="GPUmc"></IF>
+<IF cmdLine="../../cuda/cudainterf" args="-v -d 102400 --iterations=2055 --mode=memset" core="2" engine="GPUms"></IF>
+<IF cmdLine="../../cuda/cudainterf" args="-v -d 102400 --iterations=4155 --mode=d2d" core="2" engine="GPUd2d"></IF>
+<IF cmdLine="../../cuda/cudainterf" args="-v -d 102400 --iterations=1055 --mode=copyKernel" core="2" engine="GPUk"></IF>
+<IF cmdLine="../../cuda/cudainterf" args="-v -d 102400 --iterations=1055 --mode=copyKernelUVM" core="2" engine="GPUkUVM"></IF>
+
+
+</test>

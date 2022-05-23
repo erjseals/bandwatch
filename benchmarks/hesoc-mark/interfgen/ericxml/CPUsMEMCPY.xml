@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test>
+
+<id>
+t1
+</id>
+
+<iterations>
+1
+</iterations>
+
+<postprocstr>
+| grep HESOCMARK >> __THIS_FILENAME__ 
+</postprocstr>
+
+<UT cmdLine="../../membench/membench" args="-r" core="0" engine="CPU0"> </UT>
+<IF cmdLine="../../membench/meminterf" args="-v --size=156 --iterations=855 --test=memcpy" core="1" engine="CPU1"></IF>
+<IF cmdLine="../../membench/meminterf" args="-v --size=156 --iterations=855 --test=memcpy" core="2" engine="CPU2"></IF>
+<IF cmdLine="../../membench/meminterf" args="-v --size=156 --iterations=855 --test=memcpy" core="2,3,4,5,6,7" engine="CPUs"></IF>
+</test>
