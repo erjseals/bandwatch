@@ -287,17 +287,6 @@ static int bandwatch_init_debugfs(void)
     trace_printk("debugfs: failed to create /sys/kernel/debug/bandwatch/limit\n");
   }
 
-  junk = debugfs_create_file(
-          "actmon",
-          0444,
-          bandwatch_dir,
-          NULL,
-          &actmon_fops);
-  if (!junk) {
-    trace_printk("debugfs: failed to create /sys/kernel/debug/bandwatch/actmon\n");
-  }
-  
-
   debugfs_create_u32("mc_all_avg", 0444, bandwatch_dir, &mc_all_avg);
   debugfs_create_u32("mc_all_count", 0444, bandwatch_dir, &mc_all_count);
   debugfs_create_u32("mc_cpu_avg", 0444, bandwatch_dir, &mc_cpu_avg);
