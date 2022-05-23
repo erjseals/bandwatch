@@ -188,8 +188,8 @@ static int set_actmon_op(void *data, u64 value)
   // Writing n to bits 7:0 creates a n+1 usec/msec sampling period
 
   // Setting for 10 usec
-  u32 bitWise = (1 << 8) | (0x9);
-
+  // (1 << 8) | (0x9)
+  u32 bitWise = 0x109;
   void __iomem *io = ioremap(ACTMON_ADDRESS + ACTMON_GLB_PERIOD_CTRL_0, 32);
   iowrite32( bitWise , io);
 
