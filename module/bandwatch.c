@@ -154,26 +154,27 @@ void _TimerHandler(unsigned long data)
   
   mc_all_avg = ioread32(io_mc_all_avg_count);
   mc_cpu_avg = ioread32(io_mc_cpu_avg_count);
-
   mc_gpu_avg = mc_all_avg - mc_cpu_avg;
 
-  trace_printk("mc_all_avg: %u, mc_cpu_avg: %u, mc_gpu_avg: %u\n", mc_all_avg, mc_cpu_avg, mc_gpu_avg);
+  // Sampling Period mismatch, ignore result
+  // This only occurs with only CPU memory traffic
+  // so this isn't a significant issue
+  if (mc_all_avg > mc_cpu_avg) {
+    trace_printk("mc_all_avg: %u, mc_cpu_avg: %u, mc_gpu_avg: %u\n", mc_all_avg, mc_cpu_avg, mc_gpu_avg);
+    if (mc_all_avg > MAX_UTILIZATION) {
+      if (throttle_amount < THROTTLE_MAX) {
+        set_throttle(throttle_amount + 1);
+        trace_printk("mc_all_avg above: %u, throttle_amount: %u\n", mc_all_avg, throttle_amount);
+      }
+    }
 
-  /*
-  if (mc_all_avg > MAX_UTILIZATION) {
-    if (throttle_amount < THROTTLE_MAX) {
-      set_throttle(throttle_amount + 1);
-      trace_printk("mc_all_avg above: %u, throttle_amount: %u\n", mc_all_avg, throttle_amount);
+    if (mc_all_avg <= MAX_UTILIZATION) {
+      if (throttle_amount > THROTTLE_MIN) {
+        set_throttle(throttle_amount - 1);
+        trace_printk("mc_all_avg below: %u, throttle_amount: %u\n", mc_all_avg, throttle_amount);
+      }
     }
   }
-
-  if (mc_all_avg<= MAX_UTILIZATION) {
-    if (throttle_amount > THROTTLE_MIN) {
-      set_throttle(throttle_amount - 1);
-      trace_printk("mc_all_avg below: %u, throttle_amount: %u\n", mc_all_avg, throttle_amount);
-    }
-  }
-  */
 
 #if TIMER
   /* Rewind the Timer */
