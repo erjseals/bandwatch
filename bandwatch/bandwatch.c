@@ -25,7 +25,6 @@ MODULE_AUTHOR("Eric Seals <ericseals@ku.edu>");
 #define MC_EMEM_ARB_RING3_THROTTLE_0        0x700190e4
 // Disable bit 31 for ring1 arbitration
 #define MC_EMEM_ARB_RING0_THROTTLE_MASK_0   0x700196bc
-
 #define MC_EMEM_ARB_OUTSTANDING_REQ_RING3_0 0x7001966c
 
 /**************************************************************************
@@ -108,7 +107,22 @@ static int set_throttle_op(void *data, u64 value)
   return 0;
 }
 
-static int set_limit_op(void *data, u64 value)
+static int set_throttle(u32 value)
+{
+  u32 bitWise = 0;
+
+  // Define Throttling amount
+  // Bits 20:16 set throttling amount when limit is exceeded
+  // Bits 4:0 set throttling for when limit not exceeded
+
+  bitWise = (value << 16) | value;
+  iowrite32( bitWise , io_throttle);
+
+  throttle_amount = value;
+  return 0;
+}
+
+static int set_limit(u32 value)
 {
   // Set Request Limit (If outstanding requests exceed, throttling initiates) 
   // 31st bit LOW - don't limit requests, we want them to exceed the arbitration limit 
@@ -126,21 +140,6 @@ static int set_limit_op(void *data, u64 value)
   iowrite32( bitWise , io_arbitration);
 
   throttle_limit = value;
-  return 0;
-}
-
-int set_throttle(u32 value)
-{
-  u32 bitWise = 0;
-
-  // Define Throttling amount
-  // Bits 20:16 set throttling amount when limit is exceeded
-  // Bits 4:0 set throttling for when limit not exceeded
-
-  bitWise = (value << 16) | value;
-  iowrite32( bitWise , io_throttle);
-
-  throttle_amount = value;
   return 0;
 }
 
@@ -255,7 +254,6 @@ static int reset_actmon(void)
 }
 
 DEFINE_SIMPLE_ATTRIBUTE(throttle_fops, NULL, set_throttle_op, "%llu\n");
-DEFINE_SIMPLE_ATTRIBUTE(limit_fops, NULL, set_limit_op, "%llu\n");
 
 static int bandwatch_init_debugfs(void)
 {
@@ -276,16 +274,6 @@ static int bandwatch_init_debugfs(void)
           &throttle_fops);
   if (!junk) {
     trace_printk("debugfs: failed to create /sys/kernel/debug/bandwatch/throttle\n");
-  }
-
-  junk = debugfs_create_file(
-          "limit",
-          0444,
-          bandwatch_dir,
-          NULL,
-          &limit_fops);
-  if (!junk) {
-    trace_printk("debugfs: failed to create /sys/kernel/debug/bandwatch/limit\n");
   }
 
   debugfs_create_u32("mc_all_avg", 0444, bandwatch_dir, &mc_all_avg);
@@ -318,6 +306,10 @@ static int __init bandwatch_init(void) {
 #endif
 
   set_actmon();
+
+  // Initialize Throttle Mechanism
+  set_throttle(0);
+  set_limit(511);
 
   trace_printk("bandwatch module has been loaded\n");
   return 0;
