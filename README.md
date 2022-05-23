@@ -28,42 +28,22 @@
 
 1. Build the kernel module.
 ```
-cd module/
+cd bandwatch/ 
 make
 ```
 
 2. Insert the kernel module.
 ```
-insmod bandWatch.ko
-```
-
-3. Initialize the module
-
-```
-cd ../jetson-throttle/
-sudo ./initKernelModule.sh
+insmod bandwatch.ko
 ```
 
 ## Throttling
 
-1. Build the kernel module.
-```
-cd throttle/
-make
-```
-
-2. Insert the kernel module.
-```
-insmod throttle.ko
-```
-
-3. Use debugfs to specify throttling amount (0 - 31)
+Use debugfs to specify throttling amount (0 - 31)
 
 ```
-cd /sys/kernel/debug/throttle
+cd /sys/kernel/debug/bandwatch
 
-LIMIT = 511
-echo $(LIMIT) > limit
 AMOUNT = 10
 echo $(AMOUNT) > throttle
 ```

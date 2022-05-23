@@ -62,6 +62,10 @@ c-run: compile
 	@echo -e "Data set\t\t- $(INPUT)" 
 	@./$(BMARK)$(EXE) $(DATA_DIR) $(C_RESULT) | tee $(TIMING_DIR)/C_$(INPUT).txt
 
+run:
+	@echo -e "Data set\t\t- $(INPUT)" 
+	@./$(BMARK)$(EXE) $(DATA_DIR) $(C_RESULT) | tee $(TIMING_DIR)/C_$(INPUT).txt
+
 debug:
 	@echo Running Debug C Version of the benchmark
 	@$(COMPILE_G) $(COMMON_SRC) $(C_SRC) -o $(BMARK)$(EXE)
