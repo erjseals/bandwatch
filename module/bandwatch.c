@@ -181,7 +181,7 @@ void _TimerHandler(unsigned long data)
 #endif
 }
 
-static int set_actmon_op(void *data, u64 value)
+static int set_actmon(void)
 {
   // Initialize Global Period
   // Writing 1/0 to bit 8 sets period time base in usec/msec
@@ -231,7 +231,28 @@ static int set_actmon_op(void *data, u64 value)
   return 0;
 }
 
-DEFINE_SIMPLE_ATTRIBUTE(actmon_fops, NULL, set_actmon_op, "%llu\n");
+static int reset_actmon(void)
+{
+  // Initialize Global Period
+  // Writing 1/0 to bit 8 sets period time base in usec/msec
+  // Writing n to bits 7:0 creates a n+1 usec/msec sampling period
+
+  // Setting for 10 usec
+  // (1 << 8) | (0x9)
+  u32 bitWise = 0x19;
+  void __iomem *io = ioremap(ACTMON_ADDRESS + ACTMON_GLB_PERIOD_CTRL_0, 32);
+  iowrite32( bitWise , io);
+
+  // mc_cpu
+  // Enable MC Activity Monitor
+  // Write 1 to bit 31
+  io = ioremap(ACTMON_ADDRESS + ACTMON_MCCPU_CTRL_0, 32);
+  bitWise = (0 << 31);
+  iowrite32( (ioread32(io) | bitWise) , io);
+
+  return 0;
+}
+
 DEFINE_SIMPLE_ATTRIBUTE(throttle_fops, NULL, set_throttle_op, "%llu\n");
 DEFINE_SIMPLE_ATTRIBUTE(limit_fops, NULL, set_limit_op, "%llu\n");
 
@@ -306,6 +327,8 @@ static int __init bandwatch_init(void) {
   mod_timer(&g_timer, jiffies + msecs_to_jiffies(g_time_interval));
 #endif
 
+  set_actmon();
+
   trace_printk("bandwatch module has been loaded\n");
   return 0;
 }
@@ -318,6 +341,8 @@ static void __exit bandwatch_exit(void) {
   /* Delete the timer */
   del_timer(&g_timer);
 #endif
+
+  reset_actmon();
 
   trace_printk("bandwatch module has been unloaded\n");
 }
