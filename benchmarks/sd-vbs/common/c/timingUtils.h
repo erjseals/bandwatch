@@ -1,6 +1,7 @@
 #if defined(__arm__) || defined(__aarch64__)
-#define magic_timing_begin(cycleLo, cycleHi) { cycleLo = 0; cycleHi = 0;}
-#define magic_timing_end(cycleLo, cycleHi) { cycleLo = 0; cycleHi = 0;}
+extern unsigned int get_usecs();
+#define magic_timing_begin(cycleLo, cycleHi) { cycleLo = get_usecs(); cycleHi = 0;}
+#define magic_timing_end(cycleLo, cycleHi) { cycleLo = get_usecs(); cycleHi = 0;}
 #define magic_timing_report(cycleLo, cycleHi) {}
 #else
 
