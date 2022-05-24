@@ -332,8 +332,11 @@ static int set_actmon(void)
   // mc_all 
   // Enable MC Activity Monitor
   // Write 1 to bit 31
+  // Write 1 to bit 18 to enable periodic sampling
+  // Write 6 to bits 10:12
   io = ioremap(ACTMON_ADDRESS + ACTMON_MCALL_CTRL_0, 32);
-  bitWise = (1 << 31) | (1 << 18);
+  // (1 << 31) | (1 << 18) | (1 << 11) | (1 << 12);
+  bitWise = 0x80041800;
   iowrite32( (ioread32(io) | bitWise) , io);
 
   // Initialize the Weight to 0x400 
@@ -349,9 +352,9 @@ static int set_actmon(void)
 
   // mc_cpu
   // Enable MC Activity Monitor
-  // Write 1 to bit 31
+  // Same bits need to be set as mc_all 
   io = ioremap(ACTMON_ADDRESS + ACTMON_MCCPU_CTRL_0, 32);
-  bitWise = (1 << 31) | (1 << 18);
+  bitWise = 0x80041800;
   iowrite32( (ioread32(io) | bitWise) , io);
 
   // Initialize the Weight to 0x400 
