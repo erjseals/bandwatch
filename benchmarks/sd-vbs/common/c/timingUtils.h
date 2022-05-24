@@ -2,7 +2,7 @@
 extern unsigned int get_usecs();
 #define magic_timing_begin(cycleLo, cycleHi) { cycleLo = get_usecs(); cycleHi = 0;}
 #define magic_timing_end(cycleLo, cycleHi) { cycleLo = get_usecs(); cycleHi = 0;}
-#define magic_timing_report(cycleLo, cycleHi) {}
+#define magic_timing_report(cycleLo, cycleHi) { printf("Timing report: %d %d\n", cycleLo, cycleHi);}
 #else
 
 #ifdef GCC
