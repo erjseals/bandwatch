@@ -383,8 +383,8 @@ static int reset_actmon(void)
   // Enable MC Activity Monitor
   // Write 1 to bit 31
   io = ioremap(ACTMON_ADDRESS + ACTMON_MCCPU_CTRL_0, 32);
-  bitWise = (0 << 31);
-  iowrite32( (ioread32(io) | bitWise) , io);
+  bitWise = ~(1 << 31);
+  iowrite32( (ioread32(io) & bitWise) , io);
 
   return 0;
 }
