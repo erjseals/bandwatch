@@ -69,7 +69,7 @@
  * Throttle Addresses 
  **************************************************************************/
 
-#define THROTTLE 0
+#define THROTTLE 1
 
 // Base Address
 #define MC_ADDRESS                          0x70019000
