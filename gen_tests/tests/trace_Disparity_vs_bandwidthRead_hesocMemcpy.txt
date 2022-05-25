@@ -9,9 +9,6 @@
 #                            ||| /     delay
 #           TASK-PID   CPU#  ||||    TIMESTAMP  FUNCTION
 #              | |       |   ||||       |         |
-      kerneloops-4692  [003] d.h. 91406.041127: : ERR: timer overrun 2 at period 23750
-      kerneloops-4664  [003] d.h. 91410.041191: : ERR: timer overrun 2 at period 27750
-##### CPU 0 buffer started ####
        disparity-23971 [000] d.h. 91434.680007: : 1287693 205170 311955171 20053
        disparity-23971 [000] d.h. 91434.681000: : 1287624 205255 311973112 17941
       cudainterf-23967 [000] d.h2 91434.682000: : 1287596 205315 311985630 12518

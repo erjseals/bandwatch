@@ -9,10 +9,6 @@
 #                            ||| /     delay
 #           TASK-PID   CPU#  ||||    TIMESTAMP  FUNCTION
 #              | |       |   ||||       |         |
-      kerneloops-4692  [003] d.h. 91467.039918: : ERR: timer overrun 3 at period 1343
-      kerneloops-4664  [003] d.h. 91471.039685: : ERR: timer overrun 2 at period 5343
-      kerneloops-4692  [003] d.h. 91528.038587: : ERR: timer overrun 3 at period 62343
-##### CPU 0 buffer started ####
        disparity-24004 [000] d.h. 91529.160440: : 1194500 311600 337348016 15986
        disparity-24004 [000] d.h. 91529.161430: : 1194071 311573 337365451 17435
        disparity-24004 [000] d.h. 91529.162429: : 1193838 311634 337381118 15667

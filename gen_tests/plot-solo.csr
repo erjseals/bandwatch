@@ -1,0 +1,9 @@
+set terminal pdfcairo font "Gill Sans,16" linewidth 2 rounded #fontscale 1.0
+set yrange [0:*]
+set xrange [0:*]
+set ylabel "Counts" offset 0
+set xlabel "Time (ms)" offset 0
+# options: lines, linespoints, boxes
+# first column: refill count, second column: writeback count
+# show both refill and writeback
+plot "tests/parsed_trace_DisparityIsolated.txt" using 1 title "refill" with lines, "tests/parsed_trace_DisparityIsolated.txt" using 3 title "writeback" with lines
