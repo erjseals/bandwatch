@@ -14,7 +14,7 @@ with open( 'parsed_' + sys.argv[1], 'w' ) as fp:
             line = line.strip()
             line = " ".join(line.split())
             words = line.split()
-            fp.write(words[3])
+            fp.write(words[3].rstrip(words[3][-1]))
             fp.write(" ")
             fp.write(words[5])
             fp.write(" ")

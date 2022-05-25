@@ -1,9 +1,15 @@
 set terminal pdfcairo font "Gill Sans,16" linewidth 2 rounded #fontscale 1.0
-set yrange [0:*]
-set xrange [0:*]
-set ylabel "Counts" offset 0
+set yrange [0:1]
+set y2range [0:5000]
+set xrange [1000:3000]
+set ylabel "Utilization" offset 0
+set y2label "Bandwidth (MB/s)" offset 0
 set xlabel "Time (ms)" offset 0
+
+set ytics nomirror
+set y2tics
+
 # options: lines, linespoints, boxes
-# first column: refill count, second column: writeback count
+# first column: time (s), second column: mc_all, third column: mc_cpu, fourth column: cpu0 bandwidth 
 # show both refill and writeback
-plot "tests/parsed_trace_DisparityIsolated.txt" using 1 title "refill" with lines, "tests/parsed_trace_DisparityIsolated.txt" using 3 title "writeback" with lines
+plot "tests/parsed_trace_DisparityIsolated.txt" using ($2 / 1600000) title "mcall" with lines axis x1y1, "tests/parsed_trace_DisparityIsolated.txt" using (($4 * 64 * 1000000 + (1000*1024*1024 - 1)) / (1000*1024*1024)) title "bandwidth" with lines axis x1y2
