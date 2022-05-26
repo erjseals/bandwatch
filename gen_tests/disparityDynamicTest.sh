@@ -25,7 +25,7 @@ sudo rmmod memguard
 sudo kill -9 $PID_TO_KILL0 
 sudo killall -q cudainterf
 
-python3 splitftrace.py trace_dynamic_memset.txt
+python3 splitftraceThrottle.py trace_dynamic_memset.txt
 
 echo "done"
 sleep 10
@@ -53,7 +53,7 @@ sudo rmmod memguard
 sudo kill -9 $PID_TO_KILL0 
 sudo killall -q cudainterf
 
-python3 splitftrace.py trace_dynamic_memcpy.txt
+python3 splitftraceThrottle.py trace_dynamic_memcpy.txt
 
 
 mv *.txt tests_dynamic 
