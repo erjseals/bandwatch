@@ -1277,7 +1277,7 @@ int init_module( void )
 #if THROTTLE
   // Initialize Throttle Mechanism
   set_throttle(0);
-  set_limit(511);
+  set_limit(1);
 #endif
 
   put_online_cpus();
