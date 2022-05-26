@@ -423,7 +423,6 @@ static int dynamic_throttle(void)
 
 
 
-}
 
 /* similar to on_each_cpu_mask(), but this must be called with IRQ disabled */
 static void memguard_on_each_cpu_mask(const struct cpumask *mask, 
