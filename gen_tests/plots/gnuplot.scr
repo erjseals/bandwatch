@@ -1,7 +1,7 @@
 filename=ARG1
 
 
-set terminal pdfcairo font "Gill Sans,16" linewidth 2 rounded #fontscale 1.0
+set terminal pdfcairo font "Gill Sans,16" size 10in,6in linewidth 2 rounded #fontscale 1.0
 set yrange [0:1]
 set y2range [0:5000]
 set xrange [0:*]
