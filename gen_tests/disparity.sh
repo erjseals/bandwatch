@@ -1,5 +1,6 @@
 # This conducts all baseline (motivation) tests with disparity benchmark
 
+
 TEST="Disparity"
 INTERF=" "
 
@@ -23,6 +24,12 @@ sudo rmmod memguard
 sudo cat /sys/kernel/debug/tracing/trace > trace_${TEST}${INTERF}.txt 
 
 python3 splitftrace.py trace_${TEST}${INTERF}.txt
+
+
+
+
+sleep 5
+
 
 
 
@@ -51,6 +58,12 @@ python3 splitftrace.py trace_${TEST}_vs_${INTERF}.txt
 
 
 
+
+sleep 5
+
+
+
+
 INTERF="hesocMemset"
 echo "$TEST against $INTERF"
 
@@ -71,6 +84,12 @@ sudo kill -9 $PID_TO_KILL0
 sudo cat /sys/kernel/debug/tracing/trace > trace_${TEST}_vs_${INTERF}.txt 
 
 python3 splitftrace.py trace_${TEST}_vs_${INTERF}.txt
+
+
+
+
+sleep 5
+
 
 
 
@@ -98,6 +117,13 @@ python3 splitftrace.py trace_${TEST}_vs_${INTERF}.txt
 
 
 
+
+sleep 5
+
+
+
+
+
 INTERF="bandwidthWrite"
 echo "$TEST against $INTERF"
 
@@ -117,6 +143,15 @@ sudo killall -9 bandwidth
 sudo cat /sys/kernel/debug/tracing/trace > trace_${TEST}_vs_${INTERF}.txt 
 
 python3 splitftrace.py trace_${TEST}_vs_${INTERF}.txt
+
+
+
+
+
+
+sleep 5
+
+
 
 
 
@@ -143,6 +178,15 @@ sudo kill -9 $PID_TO_KILL0
 sudo cat /sys/kernel/debug/tracing/trace > trace_${TEST}_vs_${INTERF}.txt 
 
 python3 splitftrace.py trace_${TEST}_vs_${INTERF}.txt
+
+
+
+
+
+sleep 5
+
+
+
 
 
 
