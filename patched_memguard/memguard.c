@@ -537,7 +537,8 @@ void update_statistics(struct core_info *cinfo)
 		cinfo->exclusive_mode = 0;
 		cinfo->overall.exclusive++;
 	}
-
+ 
+#if THROTTLE 
   if (smp_processor_id() == 0) {
     mc_all_avg = ioread32(io_mc_all_avg_count);
     mc_cpu_avg = ioread32(io_mc_cpu_avg_count);
@@ -547,6 +548,17 @@ void update_statistics(struct core_info *cinfo)
            new, used, throttle_amount));
     dynamic_throttle();
   }
+#else
+  if (smp_processor_id() == 0) {
+    mc_all_avg = ioread32(io_mc_all_avg_count);
+    mc_cpu_avg = ioread32(io_mc_cpu_avg_count);
+
+	  DEBUG_PROFILE(trace_printk("%d %d %lld %d\n",
+				   mc_all_avg, mc_cpu_avg,
+           new, used));
+  }
+#endif
+
 }
 
 
