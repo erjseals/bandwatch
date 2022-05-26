@@ -55,4 +55,6 @@ sudo killall -q cudainterf
 
 python3 splitftrace.py trace_dynamic_memcpy.txt
 
+
+mv *.txt tests_dynamic 
 echo "done"
