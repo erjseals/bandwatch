@@ -4,6 +4,10 @@ declare -a THROTTLE_AMOUNT=(0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16)
 
 sysctl -w kernel.sched_rt_runtime_us=-1 
 
+(cd ../patched_memguard && make)
+
+sudo insmod ../patched_memguard/memguard.ko g_hw_counter_id=0x17
+
 for i in  "${THROTTLE_AMOUNT[@]}"
 do 
 	echo "Throttle Amount ${i}"

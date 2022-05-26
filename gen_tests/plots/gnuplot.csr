@@ -4,7 +4,7 @@ filename='../tests/parsed_trace_Disparity_vs_hesocMemset.txt'
 set terminal pdfcairo font "Gill Sans,16" linewidth 2 rounded #fontscale 1.0
 set yrange [0:1]
 set y2range [0:5000]
-set xrange [1000:3000]
+set xrange [0:*]
 set ylabel "Utilization" offset 0
 set y2label "Bandwidth (MB/s)" offset 0
 set xlabel "Time (ms)" offset 0
