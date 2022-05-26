@@ -4,7 +4,7 @@ filename=ARG1
 set terminal pdfcairo font "Gill Sans,16" size 10in,6in linewidth 2 rounded #fontscale 1.0
 set yrange [0:1]
 set y2range [0:5000]
-set xrange [1000:2000]
+set xrange [1000:4000]
 set ylabel "Utilization" offset 0
 set y2label "Bandwidth (MB/s)" offset 0
 set xlabel "Time (ms)" offset 0
