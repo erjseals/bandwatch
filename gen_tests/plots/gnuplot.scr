@@ -15,4 +15,4 @@ set y2tics
 # options: lines, linespoints, boxes
 # first column: time (s), second column: mc_all, third column: mc_cpu, fourth column: cpu0 bandwidth 
 # show both refill and writeback
-plot filename using ($2 / 1600000) title "utilization" with lines axis x1y1, filename using (($4 * 64 * 1000000 + (1000*1024*1024 - 1)) / (1000*1024*1024)) title "bandwidth" with lines axis x1y2
+plot filename using ($2 / 16000) title "utilization" with lines axis x1y1, filename using (($4 * 64 * 1000000 + (1000*1024*1024 - 1)) / (1000*1024*1024)) title "bandwidth" with lines axis x1y2
