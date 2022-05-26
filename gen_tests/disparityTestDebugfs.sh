@@ -15,12 +15,13 @@ sleep 2
 sudo taskset -c 2 ../benchmarks/hesoc-mark/cuda/cudainterf -d 102400 --iterations=20055 --mode=memset & PID_TO_KILL0=$!
 sleep .5
 
+echo "start disparity"
+
 sudo echo 0 > /sys/kernel/debug/tracing/trace
 
 sudo taskset -c 0 ../benchmarks/sd-vbs/benchmarks/disparity/data/fullhd/disparity ../benchmarks/sd-vbs/benchmarks/disparity/data/fullhd/. | grep "Cycles elapsed" >> cycles_dynamic_memset.txt & PID_TO_WAIT=$! 
 wait $PID_TO_WAIT
 sudo cat /sys/kernel/debug/tracing/trace > trace_dynamic_memset.txt
-sudo rmmod memguard
 
 sudo kill -9 $PID_TO_KILL0 
 sudo killall -q cudainterf
