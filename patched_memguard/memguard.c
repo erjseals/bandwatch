@@ -542,9 +542,9 @@ void update_statistics(struct core_info *cinfo)
     mc_all_avg = ioread32(io_mc_all_avg_count);
     mc_cpu_avg = ioread32(io_mc_cpu_avg_count);
 
-	  DEBUG_PROFILE(trace_printk("%d %d %lld %d\n",
+	  DEBUG_PROFILE(trace_printk("%d %d %lld %d %d\n",
 				   mc_all_avg, mc_cpu_avg,
-           new, used));
+           new, used, throttle_amount));
     dynamic_throttle();
   }
 }
