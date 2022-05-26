@@ -113,7 +113,7 @@
 
 #define THROTTLE_MAX  16
 #define THROTTLE_MIN  0
-#define MAX_UTILIZATION 10000
+#define MAX_UTILIZATION 1600
 
 /**************************************************************************
 **************************************************************************
@@ -392,6 +392,39 @@ static int reset_actmon(void)
   return 0;
 }
 
+static int dynamic_throttle(void)
+{
+  /* u32 mc_gpu_avg = 0;                         */
+
+  /* 1. Check Current MC Utilization             */
+  /* 2.a. If above threshold, increase throttle  */
+  /* 2.b. If below threshold, decrease throttle  */
+  
+  /* mc_all_avg = ioread32(io_mc_all_avg_count); */
+  /* mc_cpu_avg = ioread32(io_mc_cpu_avg_count); */
+  /* mc_gpu_avg = mc_all_avg - mc_cpu_avg;       */
+
+  // Sampling Period mismatch, ignore result
+  // This only occurs with only CPU memory traffic
+  // so this isn't a significant issue
+  if (mc_all_avg > MAX_UTILIZATION) {
+    if (throttle_amount < THROTTLE_MAX) {
+      set_throttle(throttle_amount + 1);
+    }
+  }
+
+  if (mc_all_avg <= MAX_UTILIZATION) {
+    if (throttle_amount > THROTTLE_MIN) {
+      set_throttle(throttle_amount - 1);
+    }
+  }
+  return 0;
+}
+
+
+
+}
+
 /* similar to on_each_cpu_mask(), but this must be called with IRQ disabled */
 static void memguard_on_each_cpu_mask(const struct cpumask *mask, 
 				      smp_call_func_t func,
@@ -513,7 +546,7 @@ void update_statistics(struct core_info *cinfo)
 	  DEBUG_PROFILE(trace_printk("%d %d %lld %d\n",
 				   mc_all_avg, mc_cpu_avg,
            new, used));
-    
+    dynamic_throttle();
   }
 }
 
