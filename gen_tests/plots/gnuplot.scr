@@ -1,4 +1,4 @@
-filename='../tests/parsed_trace_Disparity_vs_hesocMemset.txt'
+filename=ARG1
 
 
 set terminal pdfcairo font "Gill Sans,16" linewidth 2 rounded #fontscale 1.0

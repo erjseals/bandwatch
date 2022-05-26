@@ -325,7 +325,7 @@ static int set_actmon(void)
   // (1 << 8) | (0x9) == 0x109
   // Setting for 1 msec
   // (0 << 8) | (0x0) == 0x0
-  u32 bitWise = 0x0;
+  u32 bitWise = 0x109;
   void __iomem *io = ioremap(ACTMON_ADDRESS + ACTMON_GLB_PERIOD_CTRL_0, 32);
   iowrite32( bitWise , io);
 

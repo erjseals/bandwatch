@@ -1,1 +1,0 @@
-cmd_/home/erjseals/dev/jetson-throttle/module/bandwatch.ko := ld -EL -r  -T ./scripts/module-common.lds -T ./arch/arm64/kernel/module.lds --build-id  -o /home/erjseals/dev/jetson-throttle/module/bandwatch.ko /home/erjseals/dev/jetson-throttle/module/bandwatch.o /home/erjseals/dev/jetson-throttle/module/bandwatch.mod.o ;  true
