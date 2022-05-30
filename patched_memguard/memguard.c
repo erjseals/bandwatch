@@ -80,6 +80,10 @@
 #define MC_EMEM_ARB_RING0_THROTTLE_MASK_0   0x700196bc
 #define MC_EMEM_ARB_OUTSTANDING_REQ_RING3_0 0x7001966c
 
+// Manual EMC Trigger
+#define EMC_ADRESS                          0x7001b000
+#define EMC_TIMING_CONTROL_0                0x7001b028
+
 /**************************************************************************
  * Activity Monitor Addresses 
  **************************************************************************/
@@ -219,6 +223,7 @@ static u32 throttle_limit  = 0;
 void __iomem *io_throttle;
 void __iomem *io_limit;
 void __iomem *io_arbitration;
+void __iomem *io_emc_trigger;
 #endif
 
 void __iomem *io_mc_all_avg_count;
@@ -418,6 +423,9 @@ static int dynamic_throttle(void)
       set_throttle(throttle_amount - 1);
     }
   }
+
+  iowrite32(0x1, io_emc_trigger);
+
   return 0;
 }
 
@@ -546,7 +554,7 @@ void update_statistics(struct core_info *cinfo)
 	  DEBUG_PROFILE(trace_printk("%d %d %lld %d %d\n",
 				   mc_all_avg, mc_cpu_avg,
            new, used, throttle_amount));
-  //dynamic_throttle();
+    dynamic_throttle();
   }
 #else
   if (smp_processor_id() == 0) {
@@ -1120,6 +1128,7 @@ static int memguard_init_debugfs(void)
   io_throttle = ioremap(MC_EMEM_ARB_RING1_THROTTLE_0, 32);
   io_limit = ioremap(MC_EMEM_ARB_OUTSTANDING_REQ_0, 32);
   io_arbitration = ioremap(MC_EMEM_ARB_RING0_THROTTLE_MASK_0, 32);
+  io_emc_trigger = ioremap(EMC_TIMING_CONTROL_0, 32);
 #endif
   io_mc_all_avg_count = ioremap(ACTMON_ADDRESS + ACTMON_MCALL_AVG_COUNT_0, 32);
   io_mc_cpu_avg_count = ioremap(ACTMON_ADDRESS + ACTMON_MCCPU_AVG_COUNT_0, 32);
@@ -1277,7 +1286,7 @@ int init_module( void )
 #if THROTTLE
   // Initialize Throttle Mechanism
   set_throttle(0);
-  set_limit(0x05);
+  set_limit(0x1FF);
 #endif
 
   put_online_cpus();
