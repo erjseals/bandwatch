@@ -31,8 +31,8 @@ do
 
 	sudo taskset -c 0 ../../benchmarks/sd-vbs/benchmarks/${TEST}/data/fullhd/${TEST} ../../benchmarks/sd-vbs/benchmarks/${TEST}/data/fullhd/. | grep "Cycles elapsed" >> cycles_memset_$i.txt & PID_TO_WAIT=$! 
 	wait $PID_TO_WAIT
-	sudo rmmod memguard
 	sudo cat /sys/kernel/debug/tracing/trace > trace_memset_$i.txt
+	sudo rmmod memguard
 
 	sudo kill -9 $PID_TO_KILL0 
 	sudo killall -q cudainterf
@@ -66,8 +66,8 @@ do
 
 	sudo taskset -c 0 ../../benchmarks/sd-vbs/benchmarks/${TEST}/data/fullhd/${TEST} ../../benchmarks/sd-vbs/benchmarks/${TEST}/data/fullhd/. | grep "Cycles elapsed" >> cycles_memcpy_$i.txt & PID_TO_WAIT=$! 
 	wait $PID_TO_WAIT
-	sudo rmmod memguard
 	sudo cat /sys/kernel/debug/tracing/trace > trace_memcpy_$i.txt
+	sudo rmmod memguard
 
 	sudo kill -9 $PID_TO_KILL0 
 	sudo killall -q cudainterf

@@ -9,6 +9,8 @@
 #include <iostream>
 #include <signal.h>
 
+#define LOG 0
+
 #define CUDA_MEMCPY 0
 #define CUDA_MEMSET 1
 #define CUDA_D2D 2
@@ -34,11 +36,13 @@ struct argsStruct {
     size_t iterations;
 };
 
+#if LOG
 void quit(int param)
 {
 	printf("CPU: B/W = MB/s | \n");
 	exit(0);
 }
+#endif
 
 
 //no boundary checks to avoid unnecessary "if"s.
@@ -156,8 +160,10 @@ int main(int argc, char *argv[]){
         fflush(stdout); 
     }
 
+#if LOG
     /* set signals to terminate once time has been reached */
     signal(SIGINT, &quit);
+#endif
 
     const size_t datasize = sizeof(float) * elements;
     const bool hasToSynch = args.hasToSynch;
@@ -183,7 +189,9 @@ int main(int argc, char *argv[]){
     if(args.verbose)
         std::cout << argv[0] << ": Done" << std::endl;
 
+#if LOG
     quit(0);
+#endif
 
     return EXIT_SUCCESS;
 }
