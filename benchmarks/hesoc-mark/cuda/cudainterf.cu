@@ -7,6 +7,7 @@
 #include <getopt.h>
 #include <unistd.h>
 #include <iostream>
+#include <signal.h>
 
 #define CUDA_MEMCPY 0
 #define CUDA_MEMSET 1
@@ -32,6 +33,13 @@ struct argsStruct {
     size_t datasize;
     size_t iterations;
 };
+
+void quit(int param)
+{
+	printf("CPU: B/W = MB/s | \n");
+	exit(0);
+}
+
 
 //no boundary checks to avoid unnecessary "if"s.
 __global__ void copyKernelGPU(float *a, float *b){
@@ -148,6 +156,9 @@ int main(int argc, char *argv[]){
         fflush(stdout); 
     }
 
+    /* set signals to terminate once time has been reached */
+    signal(SIGINT, &quit);
+
     const size_t datasize = sizeof(float) * elements;
     const bool hasToSynch = args.hasToSynch;
     const size_t iterations = args.iterations;
@@ -171,6 +182,8 @@ int main(int argc, char *argv[]){
 
     if(args.verbose)
         std::cout << argv[0] << ": Done" << std::endl;
+
+    quit(0);
 
     return EXIT_SUCCESS;
 }
