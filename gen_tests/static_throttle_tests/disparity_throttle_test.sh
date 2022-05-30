@@ -5,9 +5,8 @@ declare -a THROTTLE_AMOUNT=(0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16)
 TEST="disparity"
 
 mkdir -p res 
-mkdir -p res/${TEST}_static_throttle
-mkdir -p res/${TEST}_static_throttle/${TEST}_memset_static_throttle
-mkdir -p res/${TEST}_static_throttle/${TEST}_memcpy_static_throttle
+mkdir -p res/${TEST}/memset
+mkdir -p res/${TEST}/memcpy
 
 sysctl -w kernel.sched_rt_runtime_us=-1 
 
@@ -43,7 +42,7 @@ do
 	sleep 10
 done 
 
-mv *.txt res/${TEST}_static_throttle/${TEST}_memset_static_throttle 
+mv *.txt res/${TEST}/memset
 
 
 sleep 5
@@ -78,6 +77,6 @@ do
 	sleep 10
 done 
 
-mv *.txt res/${TEST}_static_throttle/${TEST}_memcpy_static_throttle
+mv *.txt res/${TEST}/memcpy
 
 echo "done"
