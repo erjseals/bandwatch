@@ -16,14 +16,17 @@ for number, line in enumerate(lines):
     line = " ".join(line.split())
     words = line.split()
 
+    mc_all = int(words[1])
+    mc_cpu = int(words[2])
+
     if (number == 0):
-        max_all = words[1]
-        max_cpu = words[2]
+        max_all = mc_all
+        max_cpu = mc_cpu 
     else:
-        if (max_all < words[1]):
-            max_all = words[1]
-        if (max_cpu < words[2]):
-            max_cpu = words[2]
+        if (max_all < mc_all):
+            max_all = mc_all 
+        if (max_cpu < mc_cpu):
+            max_cpu = mc_cpu 
 
 print(max_all)
 print(max_cpu)
