@@ -39,14 +39,18 @@ struct argsStruct {
 };
 
 #if LOG
-void start(int param)
+void signal_handler(int sigNo)
 {
-  iter = 0;
-  std::cout << "Start:\t Number of iterations: " << iter << std::endl;
-}
-void finish(int param)
-{
-  std::cout << "Finish:\t Number of iterations: " << iter << std::endl;
+  switch(sigNo) {
+  case SIGUSR1:
+    iter = 0;
+    break;
+  case SIGUSR2:
+    printf("Total iterations: %ld\n",iter);
+    break;
+  default:
+    break;
+  }
 }
 #endif
 
@@ -168,8 +172,10 @@ int main(int argc, char *argv[]){
 
 #if LOG
     /* set signals to terminate once time has been reached */
-    signal(SIGUSR1, &start);
-    signal(SIGUSR2, &finish);
+    if (signal(SIGUSR1,signal_handler) == SIG_ERR)
+      printf("Failed to setup SIGUSR1\n");
+    if (signal(SIGUSR2,signal_handler) == SIG_ERR)
+      printf("Failed to setup SIGUSR2\n");
 #endif
 
     const size_t datasize = sizeof(float) * elements;
@@ -195,9 +201,6 @@ int main(int argc, char *argv[]){
 
     if(args.verbose)
         std::cout << argv[0] << ": Done" << std::endl;
-
-#if LOG
-#endif
 
     return EXIT_SUCCESS;
 }
