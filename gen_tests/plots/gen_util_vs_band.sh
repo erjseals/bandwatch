@@ -1,13 +1,17 @@
-gnuplot -c gnuplot.scr ../tests_uSec/parsed_trace_DisparityIsolated.txt > util_vs_band/DisparityIsolated.pdf
 
-gnuplot -c gnuplot.scr ../tests_uSec/parsed_trace_Disparity_vs_bandwidthRead_hesocMemcpy.txt > util_vs_band/Disparity_vs_bandwidthRead_hesocMemcpy.pdf
+TEST="disparity"
+mkdir -p plots_baseline/${TEST}
 
-gnuplot -c gnuplot.scr ../tests_uSec/parsed_trace_Disparity_vs_bandwidthRead.txt > util_vs_band/Disparity_vs_bandwidthRead.pdf
+gnuplot -c gnuplot.scr ../res/${TEST}_baselines/parsed_trace_${TEST}_isolated.txt > plots_baseline/${TEST}/${TEST}_isolated.pdf
 
-gnuplot -c gnuplot.scr ../tests_uSec/parsed_trace_Disparity_vs_bandwidthWrite_hesocMemset.txt > util_vs_band/Disparity_vs_bandwidthWrite_hesocMemset.pdf
+gnuplot -c gnuplot.scr ../res/${TEST}_baselines/parsed_trace_${TEST}_vs_bandwidth_read_memcpy.txt > plots_baseline/${TEST}/${TEST}_vs_bandwidth_read_memcpy.pdf
 
-gnuplot -c gnuplot.scr ../tests_uSec/parsed_trace_Disparity_vs_bandwidthWrite.txt > util_vs_band/Disparity_vs_bandwidthWrite.pdf
+gnuplot -c gnuplot.scr ../res/${TEST}_baselines/parsed_trace_${TEST}_vs_bandwidth_read.txt > plots_baseline/${TEST}/${TEST}_vs_bandwidth_read.pdf
 
-gnuplot -c gnuplot.scr ../tests_uSec/parsed_trace_Disparity_vs_hesocMemcpy.txt > util_vs_band/Disparity_vs_hesocMemcpy.pdf
+gnuplot -c gnuplot.scr ../res/${TEST}_baselines/parsed_trace_${TEST}_vs_bandwidth_write_memset.txt > plots_baseline/${TEST}/${TEST}_vs_bandwidth_write_memset.pdf
 
-gnuplot -c gnuplot.scr ../tests_uSec/parsed_trace_Disparity_vs_hesocMemset.txt > util_vs_band/Disparity_vs_hesocMemset.pdf
+gnuplot -c gnuplot.scr ../res/${TEST}_baselines/parsed_trace_${TEST}_vs_bandwidth_write.txt > plots_baseline/${TEST}/${TEST}_vs_bandwidth_write.pdf
+
+gnuplot -c gnuplot.scr ../res/${TEST}_baselines/parsed_trace_${TEST}_vs_memcpy.txt > plots_baseline/${TEST}/${TEST}_vs_memcpy.pdf
+
+gnuplot -c gnuplot.scr ../res/${TEST}_baselines/parsed_trace_${TEST}_vs_memset.txt > plots_baseline/${TEST}/${TEST}_vs_memset.pdf
