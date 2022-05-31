@@ -14,7 +14,7 @@ sleep 2
 sudo echo 0 > /sys/kernel/debug/memguard/throttle
 sleep 2
 
-sudo taskset -c 2 ../../benchmarks/hesoc-mark/cuda/cudainterf -d 102400 --iterations=20055 --mode=memset &
+sudo taskset -c 2 ../../benchmarks/hesoc-mark/cuda/cudainterf -d 102400 --iterations=20055 --mode=memset & 
 sleep .5
 
 PID_TO_KILL=$(pgrep cudainterf)
