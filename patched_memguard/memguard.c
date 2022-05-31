@@ -117,7 +117,8 @@
 
 #define THROTTLE_MAX  16
 #define THROTTLE_MIN  0
-#define MAX_UTILIZATION 1600
+#define MIN_CPU_UTILIZATION 3200
+#define MAX_GPU_UTILIZATION 5000
 
 /**************************************************************************
 **************************************************************************
@@ -283,22 +284,43 @@ static int set_throttle_op(void *data, u64 value)
   return 0;
 }
 
-static int set_throttle(u32 value)
+static void increase_throttle(void)
 {
+  if (throttle_amount < THROTTLE_MAX) {
+    throttle_amount++;
+  }
+
   u32 bitWise = 0;
 
   // Define Throttling amount
   // Bits 20:16 set throttling amount when limit is exceeded
   // Bits 4:0 set throttling for when limit not exceeded
 
-  bitWise = (value << 16) | value;
+  bitWise = (throttle_amount << 16) | throttle_amount;
   iowrite32( bitWise , io_throttle);
 
-  throttle_amount = value;
-  return 0;
+  iowrite32(0x1, io_emc_trigger);
 }
 
-static int set_limit(u32 value)
+static void decrease_throttle(void)
+{
+  if (throttle_amount > THROTTLE_MIN) {
+    throttle_amount--;
+  }
+
+  u32 bitWise = 0;
+
+  // Define Throttling amount
+  // Bits 20:16 set throttling amount when limit is exceeded
+  // Bits 4:0 set throttling for when limit not exceeded
+
+  bitWise = (throttle_amount << 16) | throttle_amount;
+  iowrite32( bitWise , io_throttle);
+
+  iowrite32(0x1, io_emc_trigger);
+}
+
+static void set_limit(u32 value)
 {
   // Set Request Limit (If outstanding requests exceed, throttling initiates) 
   // 31st bit LOW - don't limit requests, we want them to exceed the arbitration limit 
@@ -316,11 +338,39 @@ static int set_limit(u32 value)
   iowrite32( bitWise , io_arbitration);
 
   throttle_limit = value;
-  return 0;
+}
+
+
+static void dynamic_throttle(void)
+{
+  u32 mc_gpu_avg = mc_all_avg - mc_cpu_avg;
+
+  /* 1. Check Current MC Utilization             */
+  /* 2.a. If above threshold, increase throttle  */
+  /* 2.b. If below threshold, decrease throttle  */
+  
+  /* mc_all_avg = ioread32(io_mc_all_avg_count); */
+  /* mc_cpu_avg = ioread32(io_mc_cpu_avg_count); */
+  /* mc_gpu_avg = mc_all_avg - mc_cpu_avg;       */
+
+  // CPU Degradation
+  if (mc_cpu_avg < MIN_CPU_UTILIZATION) {
+    // CPU underperforming AND there's 
+    // GPU activity
+    if (mc_gpu_avg > MAX_GPU_UTILIZATION) {
+      increase_throttle();
+    }
+    else {
+      decrease_throttle();
+    }
+  }
+  else {
+    decrease_throttle();
+  }
 }
 #endif
 
-static int set_actmon(void)
+static void set_actmon(void)
 {
   // Initialize Global Period
   // Writing 1/0 to bit 8 sets period time base in usec/msec
@@ -371,11 +421,9 @@ static int set_actmon(void)
   bitWise = 0;
   io = ioremap(ACTMON_ADDRESS + ACTMON_MCCPU_INIT_AVG_0, 32);
   iowrite32( bitWise , io);
-
-  return 0;
 }
 
-static int reset_actmon(void)
+static void reset_actmon(void)
 {
   // Initialize Global Period
   // Writing 1/0 to bit 8 sets period time base in usec/msec
@@ -393,41 +441,8 @@ static int reset_actmon(void)
   io = ioremap(ACTMON_ADDRESS + ACTMON_MCCPU_CTRL_0, 32);
   bitWise = ~(1 << 31);
   iowrite32( (ioread32(io) & bitWise) , io);
-
-  return 0;
 }
 
-static int dynamic_throttle(void)
-{
-  /* u32 mc_gpu_avg = 0;                         */
-
-  /* 1. Check Current MC Utilization             */
-  /* 2.a. If above threshold, increase throttle  */
-  /* 2.b. If below threshold, decrease throttle  */
-  
-  /* mc_all_avg = ioread32(io_mc_all_avg_count); */
-  /* mc_cpu_avg = ioread32(io_mc_cpu_avg_count); */
-  /* mc_gpu_avg = mc_all_avg - mc_cpu_avg;       */
-
-  // Sampling Period mismatch, ignore result
-  // This only occurs with only CPU memory traffic
-  // so this isn't a significant issue
-  if (mc_all_avg > MAX_UTILIZATION) {
-    if (throttle_amount < THROTTLE_MAX) {
-      set_throttle(throttle_amount + 1);
-    }
-  }
-
-  if (mc_all_avg <= MAX_UTILIZATION) {
-    if (throttle_amount > THROTTLE_MIN) {
-      set_throttle(throttle_amount - 1);
-    }
-  }
-
-  iowrite32(0x1, io_emc_trigger);
-
-  return 0;
-}
 
 
 
@@ -554,7 +569,7 @@ void update_statistics(struct core_info *cinfo)
 	  DEBUG_PROFILE(trace_printk("%d %d %lld %d %d\n",
 				   mc_all_avg, mc_cpu_avg,
            new, used, throttle_amount));
-    // dynamic_throttle();
+    dynamic_throttle();
   }
 #else
   if (smp_processor_id() == 0) {
