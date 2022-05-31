@@ -286,38 +286,38 @@ static int set_throttle_op(void *data, u64 value)
 
 static void increase_throttle(void)
 {
-  if (throttle_amount < THROTTLE_MAX) {
-    throttle_amount++;
-  }
-
   u32 bitWise = 0;
 
-  // Define Throttling amount
-  // Bits 20:16 set throttling amount when limit is exceeded
-  // Bits 4:0 set throttling for when limit not exceeded
+  if (throttle_amount < THROTTLE_MAX) {
+    throttle_amount++;
 
-  bitWise = (throttle_amount << 16) | throttle_amount;
-  iowrite32( bitWise , io_throttle);
+    // Define Throttling amount
+    // Bits 20:16 set throttling amount when limit is exceeded
+    // Bits 4:0 set throttling for when limit not exceeded
 
-  iowrite32(0x1, io_emc_trigger);
+    bitWise = (throttle_amount << 16) | throttle_amount;
+    iowrite32( bitWise , io_throttle);
+
+    iowrite32(0x1, io_emc_trigger);
+  }
 }
 
 static void decrease_throttle(void)
 {
-  if (throttle_amount > THROTTLE_MIN) {
-    throttle_amount--;
-  }
-
   u32 bitWise = 0;
 
-  // Define Throttling amount
-  // Bits 20:16 set throttling amount when limit is exceeded
-  // Bits 4:0 set throttling for when limit not exceeded
+  if (throttle_amount > THROTTLE_MIN) {
+    throttle_amount--;
 
-  bitWise = (throttle_amount << 16) | throttle_amount;
-  iowrite32( bitWise , io_throttle);
+    // Define Throttling amount
+    // Bits 20:16 set throttling amount when limit is exceeded
+    // Bits 4:0 set throttling for when limit not exceeded
 
-  iowrite32(0x1, io_emc_trigger);
+    bitWise = (throttle_amount << 16) | throttle_amount;
+    iowrite32( bitWise , io_throttle);
+
+    iowrite32(0x1, io_emc_trigger);
+  }
 }
 
 static void set_limit(u32 value)
@@ -1300,7 +1300,6 @@ int init_module( void )
 
 #if THROTTLE
   // Initialize Throttle Mechanism
-  set_throttle(0);
   set_limit(0x1FF);
 #endif
 
