@@ -9,7 +9,7 @@
 #include <iostream>
 #include <signal.h>
 
-#define LOG 0
+#define LOG 1
 
 #define CUDA_MEMCPY 0
 #define CUDA_MEMSET 1
@@ -27,6 +27,8 @@ void memcpys(const size_t datasize, const bool hasToSynch, const size_t iteratio
 void copykernel(const bool isUVM, const size_t datasize, const bool hasToSynch, const size_t iterations);
 void d2d(const size_t datasize, const bool hasToSynch, const size_t iterations);
 
+size_t iter;
+
 struct argsStruct {
 	bool verbose;
     bool help;
@@ -37,10 +39,14 @@ struct argsStruct {
 };
 
 #if LOG
-void quit(int param)
+void start(int param)
 {
-	printf("CPU: B/W = MB/s | \n");
-	exit(0);
+  iter = 0;
+  std::cout << "Start:\t Number of iterations: " << iter << std::endl;
+}
+void finish(int param)
+{
+  std::cout << "Finish:\t Number of iterations: " << iter << std::endl;
 }
 #endif
 
@@ -162,7 +168,8 @@ int main(int argc, char *argv[]){
 
 #if LOG
     /* set signals to terminate once time has been reached */
-    signal(SIGINT, &quit);
+    signal(SIGUSR1, &start);
+    signal(SIGUSR2, &finish);
 #endif
 
     const size_t datasize = sizeof(float) * elements;
@@ -190,7 +197,6 @@ int main(int argc, char *argv[]){
         std::cout << argv[0] << ": Done" << std::endl;
 
 #if LOG
-    quit(0);
 #endif
 
     return EXIT_SUCCESS;
@@ -271,11 +277,11 @@ void memcpys(const size_t datasize, const bool hasToSynch, const size_t iteratio
     memset(hData,101,datasize);
     cudaStreamSynchronize(s);
 
-    size_t i = 0;
-    while(i<iterations){
+    iter = 0;
+    while(iter<iterations){
         cudaMemcpyAsync(dData, hData, datasize, cudaMemcpyHostToDevice, s);
 	    cudaMemcpyAsync(hData, dData, datasize, cudaMemcpyDeviceToHost, s);
-        i++;
+        iter++;
         if(hasToSynch) cudaStreamSynchronize(s);
     }
 
@@ -295,10 +301,10 @@ void memsets(const size_t datasize, const bool hasToSynch, const size_t iteratio
 	
     cudaStreamSynchronize(s);
 
-    size_t i = 0;
-    while(i<iterations){
+    iter = 0;
+    while(iter<iterations){
         cudaMemset((void**)dData, 'c', datasize);	
-        i++;
+        iter++;
         if(hasToSynch) cudaStreamSynchronize(s);
     }
 
