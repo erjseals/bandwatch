@@ -117,8 +117,9 @@
 
 #define THROTTLE_MAX  16
 #define THROTTLE_MIN  0
-#define MIN_CPU_UTILIZATION 3200
+#define CPU_UTILIZATION 1200
 #define MAX_GPU_UTILIZATION 6400
+#define MIN_GPU_UTILIZATION 3200
 
 /**************************************************************************
 **************************************************************************
@@ -354,10 +355,10 @@ static void dynamic_throttle(void)
   /* mc_gpu_avg = mc_all_avg - mc_cpu_avg;       */
 
   // CPU Degradation
-  if (mc_cpu_avg < MIN_CPU_UTILIZATION) {
+  if (mc_cpu_avg > CPU_UTILIZATION) {
     // CPU underperforming AND there's 
     // GPU activity
-    if (mc_gpu_avg > MAX_GPU_UTILIZATION) {
+    if (mc_gpu_avg > MIN_GPU_UTILIZATION) {
       increase_throttle();
     }
     else {
@@ -365,7 +366,12 @@ static void dynamic_throttle(void)
     }
   }
   else {
-    decrease_throttle();
+    if (mc_gpu_avg > MAX_GPU_UTILIZATION) {
+      increase_throttle();
+    }
+    else {
+      decrease_throttle();
+    }
   }
 }
 #endif
