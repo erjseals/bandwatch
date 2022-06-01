@@ -1,4 +1,5 @@
 #include <cuda_runtime.h>
+#include <cuda_profiler_api.h>
 #include <malloc.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -8,6 +9,7 @@
 #include <unistd.h>
 #include <iostream>
 #include <signal.h>
+#include <sys/time.h>
 
 #define LOG 1
 
@@ -27,7 +29,8 @@ void memcpys(const size_t datasize, const bool hasToSynch, const size_t iteratio
 void copykernel(const bool isUVM, const size_t datasize, const bool hasToSynch, const size_t iterations);
 void d2d(const size_t datasize, const bool hasToSynch, const size_t iterations);
 
-size_t iter;
+size_t iter = 0;
+volatile unsigned int g_start = 0;
 
 struct argsStruct {
 	bool verbose;
@@ -39,15 +42,38 @@ struct argsStruct {
 };
 
 #if LOG
+unsigned int get_usecs()
+{
+  struct timeval time;
+  gettimeofday(&time, NULL);
+  return (time.tv_sec * 1000000 + time.tv_usec);
+}
+
+void start(){
+  iter = 0;
+  g_start = get_usecs();
+}
+void finish(){
+  float dur = get_usecs() - g_start; 
+  float dur_in_sec = (float)dur / 1000000; 
+  printf("Total iterations: %ld\n",iter);
+  printf("elapsed = %.2f sec ( %.0f usec )\n", dur_in_sec, dur);
+  float bw = (float)iter * 102400 * 1024 * sizeof(float) / dur_in_sec / 1024 / 1024;
+  printf("Memcpy BW = %.2f MB/s\n", bw*2);
+  iter = 10000000;
+}
+
 void signal_handler(int sigNo)
 {
   switch(sigNo) {
-  case SIGUSR1:
-    iter = 0;
+  case SIGUSR1: {
+    start();
     break;
-  case SIGUSR2:
-    printf("Total iterations: %ld\n",iter);
+  }
+  case SIGUSR2: {
+    finish();
     break;
+  }
   default:
     break;
   }
@@ -179,6 +205,7 @@ int main(int argc, char *argv[]){
 #endif
 
     const size_t datasize = sizeof(float) * elements;
+    printf("datasize = %ld\n", datasize);
     const bool hasToSynch = args.hasToSynch;
     const size_t iterations = args.iterations;
 
@@ -283,7 +310,7 @@ void memcpys(const size_t datasize, const bool hasToSynch, const size_t iteratio
     iter = 0;
     while(iter<iterations){
         cudaMemcpyAsync(dData, hData, datasize, cudaMemcpyHostToDevice, s);
-	    cudaMemcpyAsync(hData, dData, datasize, cudaMemcpyDeviceToHost, s);
+	      cudaMemcpyAsync(hData, dData, datasize, cudaMemcpyDeviceToHost, s);
         iter++;
         if(hasToSynch) cudaStreamSynchronize(s);
     }
@@ -293,14 +320,13 @@ void memcpys(const size_t datasize, const bool hasToSynch, const size_t iteratio
 }
 
 void memsets(const size_t datasize, const bool hasToSynch, const size_t iterations){
+    cudaProfilerStart();
 
     cudaStream_t s;
     cudaStreamCreate(&s);
 
-    float *dData;
-    float *hData;
-    cudaMallocHost((void**)&hData,sizeof(float)); 
-    cudaMalloc((void**)&dData, datasize);
+    float *hData; cudaMallocHost((void**)&hData, sizeof(float)); 
+    float *dData; cudaMalloc((void**)&dData, datasize);
 	
     cudaStreamSynchronize(s);
 
@@ -311,11 +337,11 @@ void memsets(const size_t datasize, const bool hasToSynch, const size_t iteratio
         if(hasToSynch) cudaStreamSynchronize(s);
     }
 
-    cudaMemcpyAsync(hData,dData,sizeof(float),cudaMemcpyHostToDevice, s);
+    cudaMemcpyAsync(hData,dData,sizeof(float),cudaMemcpyDeviceToHost, s);
     cudaStreamSynchronize(s);
-    printf("CCHECK %f\n", hData[0]);
     
     cudaFreeHost(hData);
     cudaFree(dData);
     
+    cudaProfilerStop();
 }
