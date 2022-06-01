@@ -118,7 +118,7 @@
 #define THROTTLE_MAX  16
 #define THROTTLE_MIN  0
 #define MIN_CPU_UTILIZATION 3200
-#define MAX_GPU_UTILIZATION 5000
+#define MAX_GPU_UTILIZATION 6400
 
 /**************************************************************************
 **************************************************************************
