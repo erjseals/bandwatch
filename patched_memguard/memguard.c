@@ -84,6 +84,11 @@
 #define EMC_ADRESS                          0x7001b000
 #define EMC_TIMING_CONTROL_0                0x7001b028
 
+// Latency Allowance Registers
+#define MC_LATENCY_ALLOWANCE_GPU            0x700193ac
+#define MC_LATENCY_ALLOWANCE_GPU2           0x700193e8
+#define MC_LATENCY_ALLOWANCE_MPCORE         0x70019320
+
 /**************************************************************************
  * Activity Monitor Addresses 
  **************************************************************************/
@@ -218,6 +223,7 @@ static u32 mc_cpu_count = 0;
 #if THROTTLE
 static u32 throttle_amount = 0;
 static u32 throttle_limit  = 0;
+static u32 latency_amount  = 0x19;
 #endif
 
 // Memory Locations
@@ -226,6 +232,8 @@ void __iomem *io_throttle;
 void __iomem *io_limit;
 void __iomem *io_arbitration;
 void __iomem *io_emc_trigger;
+void __iomem *io_gpu_latency;
+void __iomem *io_gpu2_latency;
 #endif
 
 void __iomem *io_mc_all_avg_count;
@@ -280,6 +288,14 @@ static int set_throttle_op(void *data, u64 value)
 
   bitWise = (value << 16) | value;
   iowrite32( bitWise , io_throttle);
+
+  /* set latency
+  bitWise = (0x00800000) | 0x19;
+  iowrite32( bitWise , io_gpu_latency);
+  iowrite32( bitWise , io_gpu2_latency);
+
+  latency_amount = 0x19;
+  */
 
   throttle_amount = value;
   return 0;
@@ -1151,6 +1167,8 @@ static int memguard_init_debugfs(void)
   io_limit = ioremap(MC_EMEM_ARB_OUTSTANDING_REQ_0, 32);
   io_arbitration = ioremap(MC_EMEM_ARB_RING0_THROTTLE_MASK_0, 32);
   io_emc_trigger = ioremap(EMC_TIMING_CONTROL_0, 32);
+  //io_gpu_latency =  ioremap(MC_LATENCY_ALLOWANCE_GPU, 32);
+  //io_gpu2_latency = ioremap(MC_LATENCY_ALLOWANCE_GPU2, 32);
 #endif
   io_mc_all_avg_count = ioremap(ACTMON_ADDRESS + ACTMON_MCALL_AVG_COUNT_0, 32);
   io_mc_cpu_avg_count = ioremap(ACTMON_ADDRESS + ACTMON_MCCPU_AVG_COUNT_0, 32);
