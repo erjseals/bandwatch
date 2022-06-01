@@ -117,7 +117,7 @@
 
 #define THROTTLE_MAX  16
 #define THROTTLE_MIN  0
-#define CPU_UTILIZATION 700
+#define CPU_UTILIZATION 800
 #define MAX_GPU_UTILIZATION 6400
 #define MIN_GPU_UTILIZATION 2400
 
@@ -576,7 +576,7 @@ void update_statistics(struct core_info *cinfo)
 	  DEBUG_PROFILE(trace_printk("%d %d %lld %d %d\n",
 				   mc_all_avg, mc_cpu_avg,
            new, used, throttle_amount));
-    //dynamic_throttle();
+    dynamic_throttle();
   }
 #else
   if (smp_processor_id() == 0) {
