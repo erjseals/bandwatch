@@ -59,7 +59,8 @@ void finish(){
   printf("Total iterations: %ld\n",iter);
   printf("elapsed = %.2f sec ( %.0f usec )\n", dur_in_sec, dur);
   float bw = (float)iter * 102400 * 1024 * sizeof(float) / dur_in_sec / 1024 / 1024;
-  printf("Memcpy BW = %.2f MB/s\n", bw*2);
+  //printf("Memcpy BW = %.2f MB/s\n", bw*2);
+  printf("Memset BW = %.2f MB/s\n", bw);
   iter = 10000000;
 }
 
