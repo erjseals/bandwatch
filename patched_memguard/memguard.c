@@ -117,9 +117,9 @@
 
 #define THROTTLE_MAX  16
 #define THROTTLE_MIN  0
-#define CPU_UTILIZATION 1200
+#define CPU_UTILIZATION 800
 #define MAX_GPU_UTILIZATION 6400
-#define MIN_GPU_UTILIZATION 3200
+#define MIN_GPU_UTILIZATION 2400
 
 /**************************************************************************
 **************************************************************************
@@ -346,18 +346,19 @@ static void dynamic_throttle(void)
 {
   u32 mc_gpu_avg = mc_all_avg - mc_cpu_avg;
 
-  /* 1. Check Current MC Utilization             */
-  /* 2.a. If above threshold, increase throttle  */
-  /* 2.b. If below threshold, decrease throttle  */
-  
-  /* mc_all_avg = ioread32(io_mc_all_avg_count); */
-  /* mc_cpu_avg = ioread32(io_mc_cpu_avg_count); */
-  /* mc_gpu_avg = mc_all_avg - mc_cpu_avg;       */
+  // Logic here is as follows:
+  // Assumes CPU has average bandwidth usage with periodic high bandwidth spikes
+  // The high spikes are most susceptible to interference
+  //
+  // CPU_UTILIZATION marks the boundary between average and spiking
+  //
+  // From profiling, GPU_UTILIZATIONS can be found which are appropriate
+  // for the average case and spiking cases which maximize CPU performance.
 
-  // CPU Degradation
+
+  // High CPU Degradation zone
   if (mc_cpu_avg > CPU_UTILIZATION) {
-    // CPU underperforming AND there's 
-    // GPU activity
+    // CPU underperforming AND there's high GPU activity
     if (mc_gpu_avg > MIN_GPU_UTILIZATION) {
       increase_throttle();
     }
