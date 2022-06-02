@@ -122,9 +122,10 @@
 
 #define THROTTLE_MAX  16
 #define THROTTLE_MIN  0
-#define CPU_UTILIZATION 700 
-#define MAX_GPU_UTILIZATION 4800
-#define MIN_GPU_UTILIZATION 2000
+#define CPU_UTILIZATION 800 
+#define GPU_UTILIZATION 3200
+#define RESTRICTED_CPU_BE_BANDWIDTH 1622
+#define CPU_BE_BANDWIDTH 163823
 
 /**************************************************************************
 **************************************************************************
@@ -296,6 +297,7 @@ static int set_throttle_op(void *data, u64 value)
   */
 
   throttle_amount = value;
+  iowrite32(0x1, io_emc_trigger);
   return 0;
 }
 
@@ -356,7 +358,7 @@ static void set_limit(u32 value)
 }
 
 
-static void dynamic_throttle(void)
+static void dynamic_throttle(struct core_info *cinfo)
 {
   u32 mc_gpu_avg = mc_all_avg - mc_cpu_avg;
 
@@ -369,23 +371,59 @@ static void dynamic_throttle(void)
   // From profiling, GPU_UTILIZATIONS can be found which are appropriate
   // for the average case and spiking cases which maximize CPU performance.
 
-
   // High CPU Degradation zone
   if (mc_cpu_avg > CPU_UTILIZATION) {
-    // CPU underperforming AND there's high GPU activity
-    if (mc_gpu_avg > MIN_GPU_UTILIZATION) {
+
+    // Throttle Best Effort GPU activity
+    if (mc_gpu_avg > GPU_UTILIZATION) {
       increase_throttle();
     }
     else {
       decrease_throttle();
+    }
+  
+    // Throttle Best Effort CPU activity
+    // (if RT core is active)
+    if ( cinfo->used[0] > CPU_RT_BANDWIDTH ) {
+      // throttle cpu cores
+      int i;
+      for_each_online_cpu(i) {
+        if (i == 0);
+        else {
+          events = RESTRICTED_CPU_BE_BANDWIDTH;
+          smp_call_function_single(i, __update_budget, (void *)events, 0);
+        }
+      }
+    }
+    else {
+      // throttle cpu cores
+      int i;
+      for_each_online_cpu(i) {
+        if (i == 0);
+        else {
+          events = CPU_BE_BANDWIDTH;
+          smp_call_function_single(i, __update_budget, (void *)events, 0);
+        }
+      }
     }
   }
+
+  // No CPU activity, let GPU do as much as it desires
   else {
-    if (mc_gpu_avg > MAX_GPU_UTILIZATION) {
-      increase_throttle();
-    }
-    else {
+    if (throttle_amount > 0) {
       decrease_throttle();
+    }
+
+    // Make sure other CPUs aren't throttled
+    if ( cinfo->used[0] < CPU_RT_BANDWIDTH ) {
+      int i;
+      for_each_online_cpu(i) {
+        if (i == 0);
+        else {
+          events = CPU_BE_BANDWIDTH;
+          smp_call_function_single(i, __update_budget, (void *)events, 0);
+        }
+      }
     }
   }
 }
@@ -586,7 +624,7 @@ void update_statistics(struct core_info *cinfo)
 	  DEBUG_PROFILE(trace_printk("%d %d %lld %d %d\n",
 				   mc_all_avg, mc_cpu_avg,
            new, used, throttle_amount));
-    //dynamic_throttle();
+    dynamic_throttle(cinfo);
   }
 #else
   if (smp_processor_id() == 0) {
