@@ -23,7 +23,7 @@ do
 	sudo echo ${i} > /sys/kernel/debug/memguard/throttle
 	sleep 2
 
-	sudo taskset -c 2 ../../benchmarks/hesoc-mark/cuda/cudainterf -d 375000 -s --iterations=20055 --mode=memset >> cuda_interf.txt 2>&1 & PID_TO_KILL0=$!
+	sudo taskset -c 2 ../../benchmarks/hesoc-mark/cuda/cudainterf -d 375000 -s --iterations=20055 --mode=memset & PID_TO_KILL0=$!
 	sleep .5
 
   PID_TO_KILL=$(pgrep cudainterf)
