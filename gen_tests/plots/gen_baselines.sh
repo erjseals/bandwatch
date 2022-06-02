@@ -28,6 +28,10 @@ gnuplot -c gnuplot_baseline_zoomed.scr ../tests_baseline/res/${TEST}_baselines/p
 
 # Hesoc Benchmarks
 
-gnuplot -c gnuplot_baseline.scr ../tests_baseline/res/hesoc_isolated/parsed_trace_memset.txt > plots_baseline/hesoc/memset_isol.pdf
+gnuplot -c gnuplot_baseline.scr ../tests_baseline/res/hesoc_isolated/parsed_trace_memset.txt > plots_baseline/hesoc/memset_isolated.pdf
 
-gnuplot -c gnuplot_baseline.scr ../tests_baseline/res/hesoc_isolated/parsed_trace_memcpy.txt > plots_baseline/hesoc/memcpy_isol.pdf
+gnuplot -c gnuplot_baseline.scr ../tests_baseline/res/hesoc_isolated/parsed_trace_memcpy.txt > plots_baseline/hesoc/memcpy_isolated.pdf
+
+gnuplot -c gnuplot_baseline.scr ../tests_baseline/res/hesoc_isolated/parsed_trace_memset_sync.txt > plots_baseline/hesoc/memset_isolated_sync.pdf
+
+gnuplot -c gnuplot_baseline.scr ../tests_baseline/res/hesoc_isolated/parsed_trace_memcpy_sync.txt > plots_baseline/hesoc/memcpy_isolated_sync.pdf
