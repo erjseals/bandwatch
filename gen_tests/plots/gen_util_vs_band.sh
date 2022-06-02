@@ -1,17 +1,33 @@
+#! /usr/bin/env bash 
 
 TEST="disparity"
 mkdir -p plots_baseline/${TEST}
+mkdir -p plots_baseline/hesoc
 
-gnuplot -c gnuplot.scr ../res/${TEST}_baselines/parsed_trace_${TEST}_isolated.txt > plots_baseline/${TEST}/${TEST}_isolated.pdf
+# Full Figures
 
-gnuplot -c gnuplot.scr ../res/${TEST}_baselines/parsed_trace_${TEST}_vs_bandwidth_read_memcpy.txt > plots_baseline/${TEST}/${TEST}_vs_bandwidth_read_memcpy.pdf
+gnuplot -c gnuplot_baseline.scr ../tests_baseline/res/${TEST}_baselines/parsed_trace_${TEST}_isolated.txt > plots_baseline/${TEST}/${TEST}_isolated.pdf
 
-gnuplot -c gnuplot.scr ../res/${TEST}_baselines/parsed_trace_${TEST}_vs_bandwidth_read.txt > plots_baseline/${TEST}/${TEST}_vs_bandwidth_read.pdf
+gnuplot -c gnuplot_baseline.scr ../tests_baseline/res/${TEST}_baselines/parsed_trace_${TEST}_vs_bandwidth_read_memcpy.txt > plots_baseline/${TEST}/${TEST}_vs_bandwidth_read_memcpy.pdf
 
-gnuplot -c gnuplot.scr ../res/${TEST}_baselines/parsed_trace_${TEST}_vs_bandwidth_write_memset.txt > plots_baseline/${TEST}/${TEST}_vs_bandwidth_write_memset.pdf
+gnuplot -c gnuplot_baseline.scr ../tests_baseline/res/${TEST}_baselines/parsed_trace_${TEST}_vs_bandwidth_read.txt > plots_baseline/${TEST}/${TEST}_vs_bandwidth_read.pdf
 
-gnuplot -c gnuplot.scr ../res/${TEST}_baselines/parsed_trace_${TEST}_vs_bandwidth_write.txt > plots_baseline/${TEST}/${TEST}_vs_bandwidth_write.pdf
+gnuplot -c gnuplot_baseline.scr ../tests_baseline/res/${TEST}_baselines/parsed_trace_${TEST}_vs_bandwidth_write_memset.txt > plots_baseline/${TEST}/${TEST}_vs_bandwidth_write_memset.pdf
 
-gnuplot -c gnuplot.scr ../res/${TEST}_baselines/parsed_trace_${TEST}_vs_memcpy.txt > plots_baseline/${TEST}/${TEST}_vs_memcpy.pdf
+gnuplot -c gnuplot_baseline.scr ../tests_baseline/res/${TEST}_baselines/parsed_trace_${TEST}_vs_bandwidth_write.txt > plots_baseline/${TEST}/${TEST}_vs_bandwidth_write.pdf
 
-gnuplot -c gnuplot.scr ../res/${TEST}_baselines/parsed_trace_${TEST}_vs_memset.txt > plots_baseline/${TEST}/${TEST}_vs_memset.pdf
+gnuplot -c gnuplot_baseline.scr ../tests_baseline/res/${TEST}_baselines/parsed_trace_${TEST}_vs_memcpy.txt > plots_baseline/${TEST}/${TEST}_vs_memcpy.pdf
+
+gnuplot -c gnuplot_baseline.scr ../tests_baseline/res/${TEST}_baselines/parsed_trace_${TEST}_vs_memset.txt > plots_baseline/${TEST}/${TEST}_vs_memset.pdf
+
+
+# Zoomed in Sections
+
+gnuplot -c gnuplot_baseline_zoomed.scr ../tests_baseline/res/${TEST}_baselines/parsed_trace_${TEST}_isolated.txt > plots_baseline/${TEST}/${TEST}_isolated_zoomed.pdf
+
+
+# Hesoc Benchmarks
+
+gnuplot -c gnuplot_baseline.scr ../tests_baseline/res/hesoc_isolated/parsed_trace_memset.txt > plots_baselines/hesoc/memset_isol.pdf
+
+gnuplot -c gnuplot_baseline.scr ../tests_baseline/res/hesoc_isolated/parsed_trace_memcpy.txt > plots_baselines/hesoc/memcpy_isol.pdf
