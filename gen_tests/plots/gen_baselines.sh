@@ -1,6 +1,6 @@
 #! /usr/bin/env bash 
 
-TEST="disparity"
+TEST="texture_synthesis"
 mkdir -p plots_baseline/${TEST}
 mkdir -p plots_baseline/hesoc
 
@@ -28,10 +28,13 @@ gnuplot -c gnuplot_baseline_zoomed.scr ../tests_baseline/res/${TEST}_baselines/p
 
 # Hesoc Benchmarks
 
-gnuplot -c gnuplot_baseline.scr ../tests_baseline/res/hesoc_isolated/parsed_trace_memset.txt > plots_baseline/hesoc/memset_isolated.pdf
+if [[ 0 == 1 ]]
+then
+  gnuplot -c gnuplot_baseline.scr ../tests_baseline/res/hesoc_isolated/parsed_trace_memset.txt > plots_baseline/hesoc/memset_isolated.pdf
 
-gnuplot -c gnuplot_baseline.scr ../tests_baseline/res/hesoc_isolated/parsed_trace_memcpy.txt > plots_baseline/hesoc/memcpy_isolated.pdf
+  gnuplot -c gnuplot_baseline.scr ../tests_baseline/res/hesoc_isolated/parsed_trace_memcpy.txt > plots_baseline/hesoc/memcpy_isolated.pdf
 
-gnuplot -c gnuplot_baseline.scr ../tests_baseline/res/hesoc_isolated/parsed_trace_memset_sync.txt > plots_baseline/hesoc/memset_isolated_sync.pdf
+  gnuplot -c gnuplot_baseline.scr ../tests_baseline/res/hesoc_isolated/parsed_trace_memset_sync.txt > plots_baseline/hesoc/memset_isolated_sync.pdf
 
-gnuplot -c gnuplot_baseline.scr ../tests_baseline/res/hesoc_isolated/parsed_trace_memcpy_sync.txt > plots_baseline/hesoc/memcpy_isolated_sync.pdf
+  gnuplot -c gnuplot_baseline.scr ../tests_baseline/res/hesoc_isolated/parsed_trace_memcpy_sync.txt > plots_baseline/hesoc/memcpy_isolated_sync.pdf
+fi
