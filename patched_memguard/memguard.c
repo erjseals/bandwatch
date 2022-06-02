@@ -366,6 +366,12 @@ static void dynamic_throttle(struct core_info *cinfo)
 	unsigned long events;
   u32 mc_gpu_avg = mc_all_avg - mc_cpu_avg;
 
+  if (mc_cpu_avg > mc_all_avg) {
+    // In high cpu bandwidth traffic without gpu traffic, these averages sometimes
+    // overlap in such a way that mc_cpu_avg > mc_all_avg. manually set gpu avg.
+    mc_gpu_avg = 0;
+  }
+
   // Logic here is as follows:
   // Assumes CPU has average bandwidth usage with periodic high bandwidth spikes
   // The high spikes are most susceptible to interference
