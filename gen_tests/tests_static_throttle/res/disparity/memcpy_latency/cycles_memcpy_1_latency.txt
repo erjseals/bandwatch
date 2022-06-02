@@ -1,2 +1,0 @@
-Cycles elapsed		- 6290978
-Cycles elapsed		- 6252424

@@ -1,6 +1,6 @@
 #! /usr/bin/env bash 
 
-TEST="disparity"
+TEST="texture_synthesis"
 SIZE="250000"
 INTERF=" "
 

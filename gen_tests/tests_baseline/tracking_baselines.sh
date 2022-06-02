@@ -1,6 +1,6 @@
-#! /usr/bin/env bash 
+# This conducts all baseline (motivation) tests with disparity benchmark
 
-TEST="disparity"
+TEST="tracking"
 SIZE="250000"
 INTERF=" "
 

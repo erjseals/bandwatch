@@ -1,6 +1,6 @@
 #! /usr/bin/env bash 
 
-TEST="disparity"
+TEST="sift"
 SIZE="250000"
 INTERF=" "
 
