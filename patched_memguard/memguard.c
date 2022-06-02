@@ -125,6 +125,7 @@
 #define CPU_UTILIZATION 800 
 #define GPU_UTILIZATION 3200
 #define RESTRICTED_CPU_BE_BANDWIDTH 1622
+#define CPU_RT_BANDWIDTH 1622
 #define CPU_BE_BANDWIDTH 163823
 
 /**************************************************************************
@@ -252,6 +253,7 @@ static int throttle_thread(void *arg);
 static void memguard_on_each_cpu_mask(const struct cpumask *mask,
 				      smp_call_func_t func,
 				      void *info, bool wait);
+static void __update_budget(void *info);
 
 /**************************************************************************
  * Module parameters
@@ -360,6 +362,8 @@ static void set_limit(u32 value)
 
 static void dynamic_throttle(struct core_info *cinfo)
 {
+  int i;
+	unsigned long events;
   u32 mc_gpu_avg = mc_all_avg - mc_cpu_avg;
 
   // Logic here is as follows:
@@ -386,7 +390,6 @@ static void dynamic_throttle(struct core_info *cinfo)
     // (if RT core is active)
     if ( cinfo->used[0] > CPU_RT_BANDWIDTH ) {
       // throttle cpu cores
-      int i;
       for_each_online_cpu(i) {
         if (i == 0);
         else {
@@ -397,7 +400,6 @@ static void dynamic_throttle(struct core_info *cinfo)
     }
     else {
       // throttle cpu cores
-      int i;
       for_each_online_cpu(i) {
         if (i == 0);
         else {

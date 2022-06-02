@@ -3,6 +3,7 @@
 sysctl -w kernel.sched_rt_runtime_us=-1 
 
 TEST="disparity"
+SIZE="250000"
 
 mkdir -p res/${TEST}/memset
 mkdir -p res/${TEST}/memcpy
@@ -14,7 +15,7 @@ sleep 2
 sudo echo 0 > /sys/kernel/debug/memguard/throttle
 sleep 2
 
-sudo taskset -c 2 ../../benchmarks/hesoc-mark/cuda/cudainterf -d 102400 -s --iterations=20055 --mode=memset & 
+sudo taskset -c 2 ../../benchmarks/hesoc-mark/cuda/cudainterf -d $SIZE -s --iterations=20055 --mode=memset & 
 sleep .5
 
 PID_TO_KILL=$(pgrep cudainterf)
