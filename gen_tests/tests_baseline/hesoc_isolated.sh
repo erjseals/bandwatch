@@ -24,7 +24,7 @@ sudo cat /sys/kernel/debug/tracing/trace > trace_memset_sync.txt
 sudo rmmod memguard
 
 sudo kill -9 $PID_TO_KILL
-sudo killall -9 cudainter
+sudo killall -9 cudainterf
 
 python3 splitftrace.py trace_memset_sync.txt
 
@@ -49,7 +49,7 @@ sudo cat /sys/kernel/debug/tracing/trace > trace_memcpy_sync.txt
 sudo rmmod memguard
 
 sudo kill -9 $PID_TO_KILL
-sudo killall -9 cudainter
+sudo killall -9 cudainterf
 
 python3 splitftrace.py trace_memcpy_sync.txt
 
@@ -72,7 +72,7 @@ sudo cat /sys/kernel/debug/tracing/trace > trace_memset.txt
 sudo rmmod memguard
 
 sudo kill -9 $PID_TO_KILL
-sudo killall -9 cudainter
+sudo killall -9 cudainterf
 
 python3 splitftrace.py trace_memset.txt
 
@@ -97,7 +97,7 @@ sudo cat /sys/kernel/debug/tracing/trace > trace_memcpy.txt
 sudo rmmod memguard
 
 sudo kill -9 $PID_TO_KILL
-sudo killall -9 cudainter
+sudo killall -9 cudainterf
 
 python3 splitftrace.py trace_memcpy.txt
 
