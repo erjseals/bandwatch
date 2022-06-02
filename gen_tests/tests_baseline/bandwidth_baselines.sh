@@ -21,6 +21,7 @@ bandwidth -c 0 -t 1000 > ${TEST}_${INTERF}.txt &
 sleep 5
 
 sudo cat /sys/kernel/debug/tracing/trace > trace_${TEST}_${INTERF}.txt 
+sudo killall -9 bandwidth
 sudo rmmod memguard
 
 python3 splitftrace.py trace_${TEST}_${INTERF}.txt
@@ -43,6 +44,7 @@ for c in 1 2 3; do bandwidth -c $c -t 1000 > ${TEST}_${INTERF}.txt & done;
 sleep 5
 
 sudo cat /sys/kernel/debug/tracing/trace > trace_${TEST}_${INTERF}.txt 
+sudo killall -9 bandwidth
 sudo rmmod memguard
 
 python3 splitftrace.py trace_${TEST}_${INTERF}.txt
@@ -69,9 +71,9 @@ sudo echo 0 > /sys/kernel/debug/tracing/trace
 bandwidth -c 0 -t 1000 > ${TEST}_${INTERF}.txt &
 sleep 5
 
-wait $PID_TO_WAIT
 sudo cat /sys/kernel/debug/tracing/trace > trace_${TEST}_vs_${INTERF}.txt 
 sudo kill -s SIGUSR2 $PID_TO_KILL
+sudo killall -9 bandwidth
 sudo rmmod memguard
 
 sudo kill -9 $PID_TO_KILL
@@ -101,9 +103,9 @@ sudo echo 0 > /sys/kernel/debug/tracing/trace
 bandwidth -c 0 -t 1000 > ${TEST}_${INTERF}.txt &
 sleep 5
 
-wait $PID_TO_WAIT
 sudo cat /sys/kernel/debug/tracing/trace > trace_${TEST}_vs_${INTERF}.txt 
 sudo kill -s SIGUSR2 $PID_TO_KILL
+sudo killall -9 bandwidth
 sudo rmmod memguard
 
 sudo kill -9 $PID_TO_KILL
