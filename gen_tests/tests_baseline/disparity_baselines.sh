@@ -27,6 +27,7 @@ python3 splitftrace.py trace_${TEST}_${INTERF}.txt
 sleep 10
 
 
+
 INTERF="memcpy"
 echo "$TEST against $INTERF"
 
@@ -35,6 +36,7 @@ sleep 2
 
 sudo taskset -c 2 ../../benchmarks/hesoc-mark/cuda/cudainterf -s -d $SIZE -i 20000 -m memcpy & PID_TO_KILL0=$!
 
+sleep 3
 PID_TO_KILL=$(pgrep cudainterf)
 
 sudo kill -s SIGUSR1 $PID_TO_KILL
@@ -48,10 +50,13 @@ sudo kill -s SIGUSR2 $PID_TO_KILL
 sudo rmmod memguard
 
 sudo kill -9 $PID_TO_KILL
+sudo killall -9 cudainterf
 
 python3 splitftrace.py trace_${TEST}_vs_${INTERF}.txt
 
 sleep 10
+
+
 
 INTERF="memset"
 echo "$TEST against $INTERF"
@@ -61,6 +66,7 @@ sleep 2
 
 sudo taskset -c 2 ../../benchmarks/hesoc-mark/cuda/cudainterf -s -d $SIZE -i 20000 -m memset & PID_TO_KILL0=$!
 
+sleep 3
 PID_TO_KILL=$(pgrep cudainterf)
 
 sudo kill -s SIGUSR1 $PID_TO_KILL
@@ -74,10 +80,12 @@ sudo kill -s SIGUSR2 $PID_TO_KILL
 sudo rmmod memguard
 
 sudo kill -9 $PID_TO_KILL
+sudo killall -9 cudainterf
 
 python3 splitftrace.py trace_${TEST}_vs_${INTERF}.txt
 
 sleep 10
+
 
 
 INTERF="bandwidth_read"
@@ -102,6 +110,8 @@ python3 splitftrace.py trace_${TEST}_vs_${INTERF}.txt
 
 sleep 10
 
+
+
 INTERF="bandwidth_write"
 echo "$TEST against $INTERF"
 
@@ -125,6 +135,7 @@ python3 splitftrace.py trace_${TEST}_vs_${INTERF}.txt
 sleep 10
 
 
+
 INTERF="bandwidth_read_memcpy"
 echo "$TEST against $INTERF"
 
@@ -134,6 +145,7 @@ sleep 2
 for c in 1 2 3; do bandwidth -c $c -t 1000 & done
 sudo taskset -c 2 ../../benchmarks/hesoc-mark/cuda/cudainterf -s -d $SIZE -i 20000 -m memcpy & PID_TO_KILL0=$!
 
+sleep 3
 PID_TO_KILL=$(pgrep cudainterf)
 
 sudo kill -s SIGUSR1 $PID_TO_KILL
@@ -148,6 +160,7 @@ sudo rmmod memguard
 
 sudo killall -9 bandwidth
 sudo kill -9 $PID_TO_KILL 
+sudo killall -9 cudainterf
 
 python3 splitftrace.py trace_${TEST}_vs_${INTERF}.txt
 
@@ -163,6 +176,7 @@ sleep 2
 for c in 1 2 3; do bandwidth -a write -c $c -t 1000 & done 
 sudo taskset -c 2 ../../benchmarks/hesoc-mark/cuda/cudainterf -s -d $SIZE -i 20000 -m memset & PID_TO_KILL0=$!
 
+sleep 3
 PID_TO_KILL=$(pgrep cudainterf)
 
 sudo kill -s SIGUSR1 $PID_TO_KILL
@@ -177,6 +191,7 @@ sudo rmmod memguard
 
 sudo killall -9 bandwidth
 sudo kill -9 $PID_TO_KILL
+sudo killall -9 cudainterf
 
 python3 splitftrace.py trace_${TEST}_vs_${INTERF}.txt
 
