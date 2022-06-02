@@ -224,10 +224,8 @@ static u32 mc_cpu_count = 0;
 static u32 throttle_amount = 0;
 static u32 throttle_limit  = 0;
 static u32 latency_amount  = 0x19;
-#endif
 
 // Memory Locations
-#if THROTTLE
 void __iomem *io_throttle;
 void __iomem *io_limit;
 void __iomem *io_arbitration;
@@ -465,10 +463,6 @@ static void reset_actmon(void)
   bitWise = ~(1 << 31);
   iowrite32( (ioread32(io) & bitWise) , io);
 }
-
-
-
-
 
 /* similar to on_each_cpu_mask(), but this must be called with IRQ disabled */
 static void memguard_on_each_cpu_mask(const struct cpumask *mask, 
