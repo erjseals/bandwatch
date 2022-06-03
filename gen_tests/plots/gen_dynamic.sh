@@ -1,6 +1,6 @@
 #! /usr/bin/env bash 
 
-TEST="tracking"
+TEST="disparity"
 
 mkdir -p plots_dynamic/${TEST}
 

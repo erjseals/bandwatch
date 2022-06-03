@@ -7,7 +7,7 @@ mkdir -p plots_baseline/bandwidth
 
 # Full Figures
 
-  gnuplot -c gnuplot_baseline.scr ../tests_baseline/res/${TEST}_baselines/parsed_trace_${TEST}_isolated.txt > plots_baseline/${TEST}/${TEST}_isolated.pdf
+#  gnuplot -c gnuplot_baseline.scr ../tests_baseline/res/${TEST}_baselines/parsed_trace_${TEST}_isolated.txt > plots_baseline/${TEST}/${TEST}_isolated.pdf
 
 if [[ 0 == 1 ]]
 then
@@ -46,7 +46,7 @@ fi
 
 # Hesoc Benchmarks
 
-if [[ 0 == 1 ]]
+if [[ 1 == 1 ]]
 then
   gnuplot -c gnuplot_baseline.scr ../tests_baseline/res/hesoc_isolated/parsed_trace_memset.txt > plots_baseline/hesoc/memset_isolated.pdf
 
