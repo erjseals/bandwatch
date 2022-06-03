@@ -16,6 +16,8 @@ count   = 0
 avg_all = 0
 avg_cpu = 0
 
+events = 0
+
 for number, line in enumerate(lines):
     line = line.strip()
     line = " ".join(line.split())
@@ -26,6 +28,7 @@ for number, line in enumerate(lines):
 
     avg_all += mc_all
     avg_cpu += mc_cpu
+    events  += int(words[3])
 
     if (number == 0):
         max_all = mc_all
@@ -39,8 +42,10 @@ for number, line in enumerate(lines):
 
 avg_all = avg_all / count
 avg_cpu = avg_cpu / count
+avg_events = events / count
 
 print("max_all:", max_all)
 print("max_cpu:", max_cpu)
 print("avg_all:", avg_all)
 print("avg_cpu:", avg_cpu)
+print("avg_events:", avg_events)

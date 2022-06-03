@@ -8,7 +8,7 @@ mkdir -p res/${TEST}_baselines
 
 sysctl -w kernel.sched_rt_runtime_us=-1
 
-TEST="bandwidth0"
+TEST="bandwidth_read"
 INTERF="isolated"
 echo "$TEST $INTERF"
 
@@ -21,7 +21,7 @@ bandwidth -c 0 -t 1000 &
 sleep 5
 
 sudo cat /sys/kernel/debug/tracing/trace > trace_${TEST}_${INTERF}.txt 
-sudo killall -9 bandwidth
+sudo killall -2 bandwidth
 sudo rmmod memguard
 
 python3 splitftrace.py trace_${TEST}_${INTERF}.txt
@@ -29,6 +29,25 @@ python3 splitftrace.py trace_${TEST}_${INTERF}.txt
 sleep 10
 
 
+TEST="bandwidth_write"
+INTERF="isolated"
+echo "$TEST $INTERF"
+
+sudo insmod ../../patched_memguard/memguard.ko g_hw_counter_id=0x17
+sleep 2
+
+sudo echo 0 > /sys/kernel/debug/tracing/trace
+
+bandwidth -a write -c 0 -t 1000 &
+sleep 5
+
+sudo cat /sys/kernel/debug/tracing/trace > trace_${TEST}_${INTERF}.txt 
+sudo killall -2 bandwidth
+sudo rmmod memguard
+
+python3 splitftrace.py trace_${TEST}_${INTERF}.txt
+
+sleep 10
 
 
 TEST="bandwidth123"

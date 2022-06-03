@@ -645,7 +645,7 @@ void update_statistics(struct core_info *cinfo)
 	  DEBUG_PROFILE(trace_printk("%d %d %lld %d %d\n",
 				   mc_all_avg, mc_cpu_avg,
            new, used, throttle_amount));
-    dynamic_throttle(cinfo);
+    //dynamic_throttle(cinfo);
   }
 #else
   if (smp_processor_id() == 0) {

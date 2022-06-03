@@ -17,10 +17,14 @@ sudo taskset -c 2 ../../benchmarks/hesoc-mark/cuda/cudainterf -s -d $SIZE --iter
 sleep 3
 PID_TO_KILL=$(pgrep cudainterf)
 
+sudo kill -s SIGUSR1 $PID_TO_KILL
+
 sudo echo 0 > /sys/kernel/debug/tracing/trace
 
 sleep 5
 sudo cat /sys/kernel/debug/tracing/trace > trace_memset_sync.txt
+sudo kill -s SIGUSR2 $PID_TO_KILL
+
 sudo rmmod memguard
 
 sudo kill -9 $PID_TO_KILL
@@ -42,10 +46,12 @@ sudo taskset -c 2 ../../benchmarks/hesoc-mark/cuda/cudainterf -s -d $SIZE --iter
 sleep 3
 PID_TO_KILL=$(pgrep cudainterf)
 
+sudo kill -s SIGUSR1 $PID_TO_KILL
 sudo echo 0 > /sys/kernel/debug/tracing/trace
 
 sleep 5
 sudo cat /sys/kernel/debug/tracing/trace > trace_memcpy_sync.txt
+sudo kill -s SIGUSR2 $PID_TO_KILL
 sudo rmmod memguard
 
 sudo kill -9 $PID_TO_KILL
