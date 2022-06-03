@@ -1,9 +1,9 @@
 filename=ARG1
 
 
-set terminal pdfcairo font "Gill Sans,16" size 10in,6in linewidth 2 rounded #fontscale 1.0
+set terminal pdfcairo font "Gill Sans,16" size 5in,3in linewidth 2 rounded #fontscale 1.0
 set yrange [0:1]
-set y2range [0:5000]
+set y2range [0:2500]
 set xrange [0:*]
 set ylabel "Utilization" offset 0
 set y2label "Bandwidth (MB/s)" offset 0
@@ -15,6 +15,8 @@ set y2tics
 # options: lines, linespoints, boxes
 # first column: time (s), second column: mc_all, third column: mc_cpu, fourth column: cpu0 bandwidth 
 # show both refill and writeback
+
+
 plot filename using ($2 / 16000) title "utilization" with lines axis x1y1,\
 filename using (($4 * 64 * 1000000 + (1000*1024*1024 - 1)) / (1000*1024*1024)) title "bandwidth" with lines axis x1y2,\
 filename using (($2 - $3) / 16000) title "GPUutilization" with lines axis x1y1,\

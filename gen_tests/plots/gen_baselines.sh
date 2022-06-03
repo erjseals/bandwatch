@@ -1,11 +1,13 @@
 #! /usr/bin/env bash 
 
-TEST="disparity"
+TEST="mser"
 mkdir -p plots_baseline/${TEST}
 mkdir -p plots_baseline/hesoc
 mkdir -p plots_baseline/bandwidth
 
 # Full Figures
+
+  gnuplot -c gnuplot_baseline.scr ../tests_baseline/res/${TEST}_baselines/parsed_trace_${TEST}_isolated.txt > plots_baseline/${TEST}/${TEST}_isolated.pdf
 
 if [[ 0 == 1 ]]
 then
@@ -57,7 +59,7 @@ fi
 
 # Bandwidth Benchmarks
 
-if [[ 1 == 1 ]]
+if [[ 0 == 1 ]]
 then
   gnuplot -c gnuplot_baseline.scr ../tests_baseline/res/bandwidth_baselines/parsed_trace_bandwidth0_isolated.txt > plots_baseline/bandwidth/bandwidth0_isolated.pdf
 
