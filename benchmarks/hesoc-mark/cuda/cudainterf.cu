@@ -29,7 +29,7 @@ void memcpys(const size_t datasize, const bool hasToSynch, const size_t iteratio
 void copykernel(const bool isUVM, const size_t datasize, const bool hasToSynch, const size_t iterations);
 void d2d(const size_t datasize, const bool hasToSynch, const size_t iterations);
 
-size_t iter = 0;
+volatile size_t iter = 0;
 volatile unsigned int g_start = 0;
 
 struct argsStruct {
@@ -206,7 +206,6 @@ int main(int argc, char *argv[]){
 #endif
 
     const size_t datasize = sizeof(float) * elements;
-    printf("datasize = %ld\n", datasize);
     const bool hasToSynch = args.hasToSynch;
     const size_t iterations = args.iterations;
 
@@ -321,7 +320,6 @@ void memcpys(const size_t datasize, const bool hasToSynch, const size_t iteratio
 }
 
 void memsets(const size_t datasize, const bool hasToSynch, const size_t iterations){
-    //cudaProfilerStart();
 
     cudaStream_t s;
     cudaStreamCreate(&s);
@@ -343,6 +341,4 @@ void memsets(const size_t datasize, const bool hasToSynch, const size_t iteratio
     
     cudaFreeHost(hData);
     cudaFree(dData);
-    
-    //cudaProfilerStop();
 }

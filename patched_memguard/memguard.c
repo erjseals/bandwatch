@@ -122,10 +122,20 @@
 
 #define THROTTLE_MAX  16
 #define THROTTLE_MIN  0
-#define CPU_UTILIZATION 800 
+
+// At 10 us sample period and MC @ 1.6GHz,
+// 10% utilization is equal to 1600 ticks.
+#define CPU_UTILIZATION 800
 #define GPU_UTILIZATION 3200
+#define GPU_UTILIZATION_HIGH 6400
+
+// 1622 missed L2 cache events roughly
+// equals 100MB
 #define RESTRICTED_CPU_BE_BANDWIDTH 1622
 #define CPU_RT_BANDWIDTH 1622
+
+// Set to 10GB, so, basically, there
+// is no restrictions at this budget
 #define CPU_BE_BANDWIDTH 163823
 
 /**************************************************************************
@@ -225,7 +235,7 @@ static u32 mc_cpu_count = 0;
 #if THROTTLE
 static u32 throttle_amount = 0;
 static u32 throttle_limit  = 0;
-static u32 latency_amount  = 0x19;
+// static u32 latency_amount  = 0x19;
 
 // Memory Locations
 void __iomem *io_throttle;
@@ -418,7 +428,10 @@ static void dynamic_throttle(struct core_info *cinfo)
 
   // No CPU activity, let GPU do as much as it desires
   else {
-    if (throttle_amount > 0) {
+    if (mc_gpu_avg > GPU_UTILIZATION_HIGH) {
+      increase_throttle();
+    }
+    else {
       decrease_throttle();
     }
 

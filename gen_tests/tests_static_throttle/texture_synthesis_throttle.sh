@@ -25,7 +25,7 @@ do
 	sleep 2
 
 	sudo taskset -c 2 ../../benchmarks/hesoc-mark/cuda/cudainterf -d $SIZE -s --iterations=20055 --mode=memset & PID_TO_KILL0=$!
-	sleep 3
+	sleep 5
 
   PID_TO_KILL=$(pgrep cudainterf)
 
@@ -64,7 +64,7 @@ do
 	sleep 2
 
 	sudo taskset -c 2 ../../benchmarks/hesoc-mark/cuda/cudainterf -s -d $SIZE --iterations=20055 --mode=memcpy & PID_TO_KILL0=$!
-	sleep 3
+	sleep 5
 
   PID_TO_KILL=$(pgrep cudainterf)
 
