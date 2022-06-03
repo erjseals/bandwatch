@@ -36,7 +36,7 @@ sleep 2
 
 sudo taskset -c 2 ../../benchmarks/hesoc-mark/cuda/cudainterf -s -d $SIZE -i 20000 -m memcpy & PID_TO_KILL0=$!
 
-sleep 3
+sleep 5
 PID_TO_KILL=$(pgrep cudainterf)
 
 sudo kill -s SIGUSR1 $PID_TO_KILL
@@ -66,7 +66,7 @@ sleep 2
 
 sudo taskset -c 2 ../../benchmarks/hesoc-mark/cuda/cudainterf -s -d $SIZE -i 20000 -m memset & PID_TO_KILL0=$!
 
-sleep 3
+sleep 5
 PID_TO_KILL=$(pgrep cudainterf)
 
 sudo kill -s SIGUSR1 $PID_TO_KILL
@@ -96,6 +96,7 @@ sleep 2
 
 for c in 1 2 3; do bandwidth -c $c -t 1000 & done
 
+sleep 5
 sudo echo 0 > /sys/kernel/debug/tracing/trace
 
 taskset -c 0 ../../benchmarks/sd-vbs/benchmarks/${TEST}/data/fullhd/${TEST} ../../benchmarks/sd-vbs/benchmarks/${TEST}/data/fullhd/. | grep "Cycles elapsed" > cycles_${TEST}_vs_${INTERF}.txt & PID_TO_WAIT=$!
@@ -120,6 +121,7 @@ sleep 2
 
 for c in 1 2 3; do bandwidth -a write -c $c -t 1000 & done
 
+sleep 5
 sudo echo 0 > /sys/kernel/debug/tracing/trace
 
 taskset -c 0 ../../benchmarks/sd-vbs/benchmarks/${TEST}/data/fullhd/${TEST} ../../benchmarks/sd-vbs/benchmarks/${TEST}/data/fullhd/. | grep "Cycles elapsed" > cycles_${TEST}_vs_${INTERF}.txt & PID_TO_WAIT=$!
@@ -145,7 +147,7 @@ sleep 2
 for c in 1 2 3; do bandwidth -c $c -t 1000 & done
 sudo taskset -c 2 ../../benchmarks/hesoc-mark/cuda/cudainterf -s -d $SIZE -i 20000 -m memcpy & PID_TO_KILL0=$!
 
-sleep 3
+sleep 5
 PID_TO_KILL=$(pgrep cudainterf)
 
 sudo kill -s SIGUSR1 $PID_TO_KILL
@@ -176,7 +178,7 @@ sleep 2
 for c in 1 2 3; do bandwidth -a write -c $c -t 1000 & done 
 sudo taskset -c 2 ../../benchmarks/hesoc-mark/cuda/cudainterf -s -d $SIZE -i 20000 -m memset & PID_TO_KILL0=$!
 
-sleep 3
+sleep 5
 PID_TO_KILL=$(pgrep cudainterf)
 
 sudo kill -s SIGUSR1 $PID_TO_KILL

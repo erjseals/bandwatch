@@ -1,6 +1,6 @@
 #! /usr/bin/env bash 
 
-declare -a LOOP=(0 1 2 3 4 5 6 7 8 9 10)
+declare -a LOOP=(0 1 2 3 4 5 6 7 8 9)
 
 sysctl -w kernel.sched_rt_runtime_us=-1 
 
@@ -117,7 +117,6 @@ fi
 
 if [[ 1 == 1 ]]
 then
-
   INTERF="bandwidth_read"
   echo "$TEST against $INTERF"
 
@@ -129,19 +128,24 @@ then
 
   for c in 1 2 3; do bandwidth -c $c -t 1000 & done
 
+  sleep 2
+
   sudo echo 0 > /sys/kernel/debug/tracing/trace
 
-  taskset -c 0 ../../benchmarks/sd-vbs/benchmarks/${TEST}/data/fullhd/${TEST} ../../benchmarks/sd-vbs/benchmarks/${TEST}/data/fullhd/. | grep "Cycles elapsed" > cycles_${TEST}_vs_${INTERF}.txt & PID_TO_WAIT=$!
+  taskset -c 0 ../../benchmarks/sd-vbs/benchmarks/${TEST}/data/fullhd/${TEST} ../../benchmarks/sd-vbs/benchmarks/${TEST}/data/fullhd/. | grep "Cycles elapsed" >> cycles_${TEST}_vs_${INTERF}.txt & PID_TO_WAIT=$!
 
   wait $PID_TO_WAIT
   sudo cat /sys/kernel/debug/tracing/trace > trace_${TEST}_vs_${INTERF}.txt 
   sudo rmmod memguard
 
+  sudo killall -2 bandwidth > /dev/null 2>&1
+  sleep 1
+
   sudo killall -9 bandwidth > /dev/null 2>&1
 
   python3 splitftrace.py trace_${TEST}_vs_${INTERF}.txt
 
-  sleep 10
+  sleep 5
 
 
 
@@ -154,23 +158,30 @@ then
 
   for c in 1 2 3; do bandwidth -a write -c $c -t 1000 & done
 
+  sleep 2
+
   sudo echo 0 > /sys/kernel/debug/tracing/trace
 
-  taskset -c 0 ../../benchmarks/sd-vbs/benchmarks/${TEST}/data/fullhd/${TEST} ../../benchmarks/sd-vbs/benchmarks/${TEST}/data/fullhd/. | grep "Cycles elapsed" > cycles_${TEST}_vs_${INTERF}.txt & PID_TO_WAIT=$!
+  taskset -c 0 ../../benchmarks/sd-vbs/benchmarks/${TEST}/data/fullhd/${TEST} ../../benchmarks/sd-vbs/benchmarks/${TEST}/data/fullhd/. | grep "Cycles elapsed" >> cycles_${TEST}_vs_${INTERF}.txt & PID_TO_WAIT=$!
 
   wait $PID_TO_WAIT
+
   sudo cat /sys/kernel/debug/tracing/trace > trace_${TEST}_vs_${INTERF}.txt 
   sudo rmmod memguard
+
+  sudo killall -2 bandwidth > /dev/null 2>&1
+  sleep 1
 
   sudo killall -9 bandwidth > /dev/null 2>&1
 
   python3 splitftrace.py trace_${TEST}_vs_${INTERF}.txt
 
-  sleep 10
+fi
 
 
 
-
+if [[ 1 == 1 ]]
+then
   INTERF="bandwidth_read_memcpy"
   echo "$TEST against $INTERF"
 
