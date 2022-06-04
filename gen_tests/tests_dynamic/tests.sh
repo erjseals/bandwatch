@@ -1,11 +1,17 @@
 #! /usr/bin/env bash 
 
-declare -a LOOP=(0)
+declare -a LOOP=(1 2 3 4)
 
 sysctl -w kernel.sched_rt_runtime_us=-1 
 
 TEST="tracking"
 SIZE="250000"
+
+isolated=1
+memcpy=1
+memset=1
+bandwidth=1
+bandwidth_heavy=1
 
 for i in "${LOOP[@]}"
 do
@@ -32,7 +38,7 @@ do
 
   mkdir -p res/${TEST}
 
-  if [[ 1 == 1 ]]
+  if [[ $isolated == 1 ]]
   then
     INTERF="isolated"
     echo "$TEST $INTERF"
@@ -59,7 +65,7 @@ do
     sleep 10
   fi
 
-  if [[ 1 == 1 ]]
+  if [[ $memset == 1 ]]
   then
     INTERF="memset"
     echo "$TEST against $INTERF"
@@ -100,7 +106,7 @@ do
 
 
 
-  if [[ 1 == 1 ]]
+  if [[ $memcpy == 1 ]]
   then
     INTERF="memcpy"
     echo "$TEST against $INTERF"
@@ -138,7 +144,7 @@ do
   fi
 
 
-  if [[ 1 == 1 ]]
+  if [[ $bandwidth == 1 ]]
   then
     INTERF="bandwidth_read"
     echo "$TEST against $INTERF"
@@ -203,7 +209,7 @@ do
 
 
 
-  if [[ 1 == 1 ]]
+  if [[ $bandwidth_heavy == 1 ]]
   then
     INTERF="bandwidth_read_memcpy"
     echo "$TEST against $INTERF"
@@ -226,6 +232,9 @@ do
     sudo cat /sys/kernel/debug/tracing/trace > trace_${TEST}_vs_${INTERF}.txt 
     sudo kill -s SIGUSR2 $PID_TO_KILL
     sudo rmmod memguard
+
+    sudo killall -2 bandwidth
+    sleep 1
 
     sudo killall -9 bandwidth > /dev/null 2>&1
     sudo kill -9 $PID_TO_KILL  > /dev/null 2>&1
@@ -261,6 +270,8 @@ do
     sudo kill -s SIGUSR2 $PID_TO_KILL
     sudo rmmod memguard
 
+    sudo killall -2 bandwidth
+    sleep 1
     sudo killall -9 bandwidth > /dev/null 2>&1
     sudo kill -9 $PID_TO_KILL > /dev/null 2>&1
     sudo killall -9 cudainterf > /dev/null 2>&1
