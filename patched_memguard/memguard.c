@@ -125,12 +125,14 @@
 
 // At 10 us sample period and MC @ 1.6GHz,
 // 10% utilization is equal to 1600 ticks.
+
+// This is set to the max observed CPU utilization
 #define MAX_CPU_UTILIZATION 2800
 
-// 1622 missed L2 cache events roughly
-// equals 100MB
-#define RESTRICTED_CPU_BE_BANDWIDTH 1622
-#define CPU_RT_BANDWIDTH 1622
+// 1622 missed L2 cache events roughly equals 100MB
+// 1216 == 75MB
+#define CPU_RESTRICTED_BANDWIDTH 1216
+#define CPU_RT_BANDWIDTH 1216
 
 // Set to 10GB, so, basically, there
 // is no restrictions at this budget
@@ -391,7 +393,7 @@ static void dynamic_throttle(struct core_info *cinfo)
     for_each_online_cpu(i) {
       if (i == 0);
       else {
-        events = CPU_RT_BANDWIDTH;
+        events = CPU_RESTRICTED_BANDWIDTH;
         smp_call_function_single(i, __update_budget, (void *)events, 0);
       }
     }
