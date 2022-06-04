@@ -324,6 +324,8 @@ static void set_throttle(u32 throttle)
   // Write throttle value to register
   bitWise = (throttle << 16) | throttle;
   iowrite32( bitWise , io_throttle);
+  
+  throttle_amount = throttle;
 
   // Force the shadow register to update
   iowrite32(0x1, io_emc_trigger);
