@@ -120,14 +120,12 @@
  * Constants 
  **************************************************************************/
 
-#define THROTTLE_MAX  16
+#define THROTTLE_MAX  8
 #define THROTTLE_MIN  0
 
 // At 10 us sample period and MC @ 1.6GHz,
 // 10% utilization is equal to 1600 ticks.
-#define CPU_UTILIZATION 800
-#define GPU_UTILIZATION 3200
-#define GPU_UTILIZATION_HIGH 6400
+#define MAX_CPU_UTILIZATION 2800
 
 // 1622 missed L2 cache events roughly
 // equals 100MB
@@ -313,40 +311,22 @@ static int set_throttle_op(void *data, u64 value)
   return 0;
 }
 
-static void increase_throttle(void)
+static void set_throttle(u32 throttle)
 {
   u32 bitWise = 0;
 
-  if (throttle_amount < THROTTLE_MAX) {
-    throttle_amount++;
+  // Quick Bounds Check
+  if (throttle < THROTTLE_MIN)
+    throttle = 0;
+  else if (throttle > THROTTLE_MAX)
+    throttle = THROTTLE_MAX;
 
-    // Define Throttling amount
-    // Bits 20:16 set throttling amount when limit is exceeded
-    // Bits 4:0 set throttling for when limit not exceeded
+  // Write throttle value to register
+  bitWise = (throttle << 16) | throttle;
+  iowrite32( bitWise , io_throttle);
 
-    bitWise = (throttle_amount << 16) | throttle_amount;
-    iowrite32( bitWise , io_throttle);
-
-    iowrite32(0x1, io_emc_trigger);
-  }
-}
-
-static void decrease_throttle(void)
-{
-  u32 bitWise = 0;
-
-  if (throttle_amount > THROTTLE_MIN) {
-    throttle_amount--;
-
-    // Define Throttling amount
-    // Bits 20:16 set throttling amount when limit is exceeded
-    // Bits 4:0 set throttling for when limit not exceeded
-
-    bitWise = (throttle_amount << 16) | throttle_amount;
-    iowrite32( bitWise , io_throttle);
-
-    iowrite32(0x1, io_emc_trigger);
-  }
+  // Force the shadow register to update
+  iowrite32(0x1, io_emc_trigger);
 }
 
 static void set_limit(u32 value)
@@ -374,6 +354,7 @@ static void dynamic_throttle(struct core_info *cinfo)
 {
   int i;
 	unsigned long events;
+  u32 throttle;
   u32 mc_gpu_avg = mc_all_avg - mc_cpu_avg;
 
   if (mc_cpu_avg > mc_all_avg) {
@@ -382,68 +363,44 @@ static void dynamic_throttle(struct core_info *cinfo)
     mc_gpu_avg = 0;
   }
 
-  // Logic here is as follows:
-  // Assumes CPU has average bandwidth usage with periodic high bandwidth spikes
-  // The high spikes are most susceptible to interference
+  // Inverse relationship between RT core 0 and the GPU 
+  // Still based upon experimentally found values, but 
+  // they are experimentally found maximums
   //
-  // CPU_UTILIZATION marks the boundary between average and spiking
-  //
-  // From profiling, GPU_UTILIZATIONS can be found which are appropriate
-  // for the average case and spiking cases which maximize CPU performance.
+  // CPU solo max MC utilization:
+  // GPU solo max MC utilization:
 
-  // High CPU Degradation zone
-  if (mc_cpu_avg > CPU_UTILIZATION) {
 
-    // Throttle Best Effort GPU activity
-    if (mc_gpu_avg > GPU_UTILIZATION) {
-      increase_throttle();
-    }
-    else {
-      decrease_throttle();
-    }
+  // Compute Throttle Amount
+  // Basically, create THROTTLE_MAX regions of
+  // RT CPU usage amounts
   
-    // Throttle Best Effort CPU activity
-    // (if RT core is active)
-    if ( cinfo->used[0] > CPU_RT_BANDWIDTH ) {
-      // throttle cpu cores
-      for_each_online_cpu(i) {
-        if (i == 0);
-        else {
-          events = RESTRICTED_CPU_BE_BANDWIDTH;
-          smp_call_function_single(i, __update_budget, (void *)events, 0);
-        }
-      }
-    }
-    else {
-      // throttle cpu cores
-      for_each_online_cpu(i) {
-        if (i == 0);
-        else {
-          events = CPU_BE_BANDWIDTH;
-          smp_call_function_single(i, __update_budget, (void *)events, 0);
-        }
+  throttle = mc_cpu_avg / MAX_CPU_UTILIZATION;
+  throttle = throttle * THROTTLE_MAX;
+
+  set_throttle(throttle);
+  
+  // Simple if else on whether to throttle other
+  // CPU NRT cores
+
+  i = 0;
+
+  if ( cinfo->used[0] > CPU_RT_BANDWIDTH ) {
+    // throttle cpu cores
+    for_each_online_cpu(i) {
+      if (i == 0);
+      else {
+        events = CPU_BE_BANDWIDTH;
+        smp_call_function_single(i, __update_budget, (void *)events, 0);
       }
     }
   }
-
-  // No CPU activity, let GPU do as much as it desires
   else {
-    if (mc_gpu_avg > GPU_UTILIZATION_HIGH) {
-      increase_throttle();
-    }
-    else {
-      decrease_throttle();
-    }
-
-    // Make sure other CPUs aren't throttled
-    if ( cinfo->used[0] < CPU_RT_BANDWIDTH ) {
-      int i;
-      for_each_online_cpu(i) {
-        if (i == 0);
-        else {
-          events = CPU_BE_BANDWIDTH;
-          smp_call_function_single(i, __update_budget, (void *)events, 0);
-        }
+    for_each_online_cpu(i) {
+      if (i == 0);
+      else {
+        events = CPU_BE_BANDWIDTH;
+        smp_call_function_single(i, __update_budget, (void *)events, 0);
       }
     }
   }
