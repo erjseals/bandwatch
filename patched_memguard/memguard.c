@@ -120,7 +120,7 @@
  * Constants 
  **************************************************************************/
 
-#define THROTTLE_MAX  8
+#define THROTTLE_MAX  16
 #define THROTTLE_MIN  0
 
 // At 10 us sample period and MC @ 1.6GHz,
@@ -327,6 +327,7 @@ static void set_throttle(u32 throttle)
   
   throttle_amount = throttle;
 
+  //DEBUG_PROFILE(trace_printk("Throttle %d\n", throttle_amount));
   // Force the shadow register to update
   iowrite32(0x1, io_emc_trigger);
 }
@@ -377,9 +378,7 @@ static void dynamic_throttle(struct core_info *cinfo)
   // Basically, create THROTTLE_MAX regions of
   // RT CPU usage amounts
   
-  throttle = mc_cpu_avg / MAX_CPU_UTILIZATION;
-  throttle = throttle * THROTTLE_MAX;
-
+  throttle = (mc_cpu_avg * THROTTLE_MAX) / MAX_CPU_UTILIZATION;
   set_throttle(throttle);
   
   // Simple if else on whether to throttle other
@@ -392,7 +391,7 @@ static void dynamic_throttle(struct core_info *cinfo)
     for_each_online_cpu(i) {
       if (i == 0);
       else {
-        events = CPU_BE_BANDWIDTH;
+        events = CPU_RT_BANDWIDTH;
         smp_call_function_single(i, __update_budget, (void *)events, 0);
       }
     }
