@@ -1,72 +1,77 @@
 #! /usr/bin/env bash 
 
-declare -a LOOP=(5)
+declare -a LOOP=(0 1 2 3 4)
 
 sysctl -w kernel.sched_rt_runtime_us=-1 
 
 TEST="tracking"
 SIZE="250000"
 
-isolated=2
-memcpy=12
-memset=14
-bandwidth=15
-bandwidth_heavy=15
+isolated=1
+memcpy=1
+memset=1
+bandwidth=1
+bandwidth_heavy=1
+benchmarks=5
 
-sudo insmod ../../patched_memguard/memguard.ko g_hw_counter_id=0x17
-sleep 2
-sudo echo 0 > /sys/kernel/debug/tracing/trace
+if [[ $benchmarks == 1 ]]
+then
+  sudo insmod ../../patched_memguard/memguard.ko g_hw_counter_id=0x17
+  sleep 2
+  sudo echo 0 > /sys/kernel/debug/tracing/trace
 
-mkdir -p res/interf
+  mkdir -p res/interf
 
-for c in 1 2 3; do bandwidth -c $c -t 1000 >> bw_read.txt & done
+  for c in 1 2 3; do bandwidth -c $c -t 1000 >> bw_read.txt & done
 
-sleep 5
+  sleep 5
 
-sudo killall -2 bandwidth > /dev/null 2>&1
-sleep 1
-sudo killall -9 bandwidth > /dev/null 2>&1
+  sudo killall -2 bandwidth > /dev/null 2>&1
+  sleep 1
+  sudo killall -9 bandwidth > /dev/null 2>&1
 
-sleep 5
-
-
-for c in 1 2 3; do bandwidth -a write -c $c -t 1000 >> bw_write.txt & done
-
-sleep 5
-
-sudo killall -2 bandwidth > /dev/null 2>&1
-sleep 1
-sudo killall -9 bandwidth > /dev/null 2>&1
-
-sleep 5
+  sleep 5
 
 
-sudo taskset -c 2 ../../benchmarks/hesoc-mark/cuda/cudainterf -s -d $SIZE --iterations=20055 --mode=memset | grep "Memset BW" | awk '{ print $4 }' >> bw_memset.txt & PID_TO_KILL0=$!
-PID_TO_KILL=$(pgrep cudainterf)
-sleep 5
-sudo kill -s SIGUSR1 $PID_TO_KILL
-sleep 5
-sudo kill -s SIGUSR2 $PID_TO_KILL
+  for c in 1 2 3; do bandwidth -a write -c $c -t 1000 >> bw_write.txt & done
 
-wait $PID_TO_KILL0
-sudo killall -9 cudainterf
-sleep 5
+  sleep 5
 
-sudo taskset -c 2 ../../benchmarks/hesoc-mark/cuda/cudainterf -s -d $SIZE --iterations=20055 --mode=memcpy | grep "Memcpy BW" | awk '{ print $4 }' >> bw_memcpy.txt & PID_TO_KILL0=$!
-PID_TO_KILL=$(pgrep cudainterf)
-sleep 5
-sudo kill -s SIGUSR1 $PID_TO_KILL
-sleep 5
-sudo kill -s SIGUSR2 $PID_TO_KILL
+  sudo killall -2 bandwidth > /dev/null 2>&1
+  sleep 1
+  sudo killall -9 bandwidth > /dev/null 2>&1
 
-wait $PID_TO_KILL0
-sudo killall -9 cudainterf
-sleep 5
-
-mv *.txt /res/interf
+  sleep 5
 
 
+  echo "memset"
+  sudo taskset -c 2 ../../benchmarks/hesoc-mark/cuda/cudainterf -s -d $SIZE --iterations=20055 --mode=memset | grep "Memset BW" | awk '{ print $4 }' >> bw_memset.txt & PID_TO_KILL0=$!
+  sleep 5
+  PID_TO_KILL=$(pgrep cudainterf)
+  sudo kill -s SIGUSR1 $PID_TO_KILL
+  sleep 5
+  sudo kill -s SIGUSR2 $PID_TO_KILL
 
+  wait $PID_TO_KILL0
+  sudo killall -9 cudainterf
+  sleep 5
+
+  echo "memcpy"
+  sudo taskset -c 2 ../../benchmarks/hesoc-mark/cuda/cudainterf -s -d $SIZE --iterations=20055 --mode=memcpy | grep "Memcpy BW" | awk '{ print $4 }' >> bw_memcpy.txt & PID_TO_KILL0=$!
+  sleep 5
+  PID_TO_KILL=$(pgrep cudainterf)
+  sudo kill -s SIGUSR1 $PID_TO_KILL
+  sleep 5
+  sudo kill -s SIGUSR2 $PID_TO_KILL
+
+  wait $PID_TO_KILL0
+  sudo killall -9 cudainterf
+  sleep 5
+
+  mv *.txt res/interf
+
+  sleep 20
+fi
 
 
 for i in "${LOOP[@]}"
