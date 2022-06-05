@@ -1,6 +1,6 @@
 #! /usr/bin/env bash 
 
-declare -a LOOP=(0 1 2 3 4)
+declare -a LOOP=(0 1)
 
 sysctl -w kernel.sched_rt_runtime_us=-1 
 
@@ -11,7 +11,7 @@ isolated=1
 memcpy=1
 memset=1
 bandwidth=1
-bandwidth_heavy=12
+bandwidth_heavy=1
 
 sudo insmod ../../patched_memguard/memguard.ko g_hw_counter_id=0x17
 sleep 2
