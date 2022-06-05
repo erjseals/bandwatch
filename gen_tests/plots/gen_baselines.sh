@@ -9,6 +9,33 @@ mkdir -p plots_baseline/bandwidth
 
 #  gnuplot -c gnuplot_baseline.scr ../tests_baseline/res/${TEST}_baselines/parsed_trace_${TEST}_isolated.txt > plots_baseline/${TEST}/${TEST}_isolated.pdf
 
+TEST="disparity"
+mkdir -p plots_baseline/${TEST}
+gnuplot -c gnuplot_baseline.scr ../tests_baseline/res/${TEST}_baselines/parsed_trace_${TEST}_isolated.txt > plots_baseline/${TEST}/${TEST}_isolated.pdf
+gnuplot -c gnuplot_baseline_zoomed.scr ../tests_baseline/res/${TEST}_baselines/parsed_trace_${TEST}_isolated.txt > plots_baseline/${TEST}/${TEST}_isolated_zoomed.pdf
+
+TEST="mser"
+mkdir -p plots_baseline/${TEST}
+gnuplot -c gnuplot_baseline.scr ../tests_baseline/res/${TEST}_baselines/parsed_trace_${TEST}_isolated.txt > plots_baseline/${TEST}/${TEST}_isolated.pdf
+gnuplot -c gnuplot_baseline_zoomed.scr ../tests_baseline/res/${TEST}_baselines/parsed_trace_${TEST}_isolated.txt > plots_baseline/${TEST}/${TEST}_isolated_zoomed.pdf
+
+TEST="sift"
+mkdir -p plots_baseline/${TEST}
+gnuplot -c gnuplot_baseline.scr ../tests_baseline/res/${TEST}_baselines/parsed_trace_${TEST}_isolated.txt > plots_baseline/${TEST}/${TEST}_isolated.pdf
+gnuplot -c gnuplot_baseline_zoomed.scr ../tests_baseline/res/${TEST}_baselines/parsed_trace_${TEST}_isolated.txt > plots_baseline/${TEST}/${TEST}_isolated_zoomed.pdf
+
+TEST="texture_synthesis"
+mkdir -p plots_baseline/${TEST}
+gnuplot -c gnuplot_baseline.scr ../tests_baseline/res/${TEST}_baselines/parsed_trace_${TEST}_isolated.txt > plots_baseline/${TEST}/${TEST}_isolated.pdf
+gnuplot -c gnuplot_baseline_zoomed.scr ../tests_baseline/res/${TEST}_baselines/parsed_trace_${TEST}_isolated.txt > plots_baseline/${TEST}/${TEST}_isolated_zoomed.pdf
+
+TEST="tracking"
+mkdir -p plots_baseline/${TEST}
+gnuplot -c gnuplot_baseline.scr ../tests_baseline/res/${TEST}_baselines/parsed_trace_${TEST}_isolated.txt > plots_baseline/${TEST}/${TEST}_isolated.pdf
+gnuplot -c gnuplot_baseline_zoomed.scr ../tests_baseline/res/${TEST}_baselines/parsed_trace_${TEST}_isolated.txt > plots_baseline/${TEST}/${TEST}_isolated_zoomed.pdf
+
+
+
 if [[ 0 == 1 ]]
 then
 
@@ -61,9 +88,13 @@ fi
 
 if [[ 1 == 1 ]]
 then
-  gnuplot -c gnuplot_baseline.scr ../tests_baseline/res/bandwidth_baselines/parsed_trace_bandwidth0_isolated.txt > plots_baseline/bandwidth/bandwidth0_isolated.pdf
+  gnuplot -c gnuplot_baseline.scr ../tests_baseline/res/bandwidth_baselines/parsed_trace_bandwidth_read_isolated.txt > plots_baseline/bandwidth/bandwidth_read_isolated.pdf
   
-  gnuplot -c gnuplot_baseline_zoomed.scr ../tests_baseline/res/bandwidth_baselines/parsed_trace_bandwidth0_isolated.txt > plots_baseline/bandwidth/zoomed_bandwidth0_isolated.pdf
+  gnuplot -c gnuplot_baseline_zoomed.scr ../tests_baseline/res/bandwidth_baselines/parsed_trace_bandwidth_read_isolated.txt > plots_baseline/bandwidth/zoomed_bandwidth_read_isolated.pdf
+
+  gnuplot -c gnuplot_baseline.scr ../tests_baseline/res/bandwidth_baselines/parsed_trace_bandwidth_write_isolated.txt > plots_baseline/bandwidth/bandwidth_write_isolated.pdf
+  
+  gnuplot -c gnuplot_baseline_zoomed.scr ../tests_baseline/res/bandwidth_baselines/parsed_trace_bandwidth_write_isolated.txt > plots_baseline/bandwidth/zoomed_bandwidth_write_isolated.pdf
 
   gnuplot -c gnuplot_baseline.scr ../tests_baseline/res/bandwidth_baselines/parsed_trace_bandwidth01_isolated.txt > plots_baseline/bandwidth/bandwidth01_isolated.pdf
 
