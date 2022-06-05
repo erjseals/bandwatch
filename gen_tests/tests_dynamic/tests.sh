@@ -1,17 +1,17 @@
 #! /usr/bin/env bash 
 
-declare -a LOOP=(1 2 3 4)
+declare -a LOOP=(0 1 2 3 4)
 
 sysctl -w kernel.sched_rt_runtime_us=-1 
 
 TEST="tracking"
 SIZE="250000"
 
-isolated=1
-memcpy=1
-memset=1
+isolated=12
+memcpy=12
+memset=12
 bandwidth=1
-bandwidth_heavy=1
+bandwidth_heavy=12
 
 sudo insmod ../../patched_memguard/memguard.ko g_hw_counter_id=0x17
 sleep 2
@@ -144,14 +144,14 @@ do
 
     for c in 1 2 3; do bandwidth -c $c -t 1000 >> bw_${INTERF}.txt & done
 
-    sleep 2
+    sleep 5
 
-    sudo echo 0 > /sys/kernel/debug/tracing/trace
+    #sudo echo 0 > /sys/kernel/debug/tracing/trace
 
-    taskset -c 0 ../../benchmarks/sd-vbs/benchmarks/${TEST}/data/fullhd/${TEST} ../../benchmarks/sd-vbs/benchmarks/${TEST}/data/fullhd/. | grep "Cycles elapsed" >> cycles_${TEST}_vs_${INTERF}.txt & PID_TO_WAIT=$!
+    #taskset -c 0 ../../benchmarks/sd-vbs/benchmarks/${TEST}/data/fullhd/${TEST} ../../benchmarks/sd-vbs/benchmarks/${TEST}/data/fullhd/. | grep "Cycles elapsed" >> cycles_${TEST}_vs_${INTERF}.txt & PID_TO_WAIT=$!
 
-    wait $PID_TO_WAIT
-    sudo cat /sys/kernel/debug/tracing/trace > trace_${TEST}_vs_${INTERF}.txt 
+    #wait $PID_TO_WAIT
+    #sudo cat /sys/kernel/debug/tracing/trace > trace_${TEST}_vs_${INTERF}.txt 
 
     sudo killall -2 bandwidth > /dev/null 2>&1
     sleep 1
@@ -168,15 +168,15 @@ do
 
     for c in 1 2 3; do bandwidth -a write -c $c -t 1000 >> bw_${INTERF}.txt & done
 
-    sleep 2
+    sleep 5
 
-    sudo echo 0 > /sys/kernel/debug/tracing/trace
+    #sudo echo 0 > /sys/kernel/debug/tracing/trace
 
-    taskset -c 0 ../../benchmarks/sd-vbs/benchmarks/${TEST}/data/fullhd/${TEST} ../../benchmarks/sd-vbs/benchmarks/${TEST}/data/fullhd/. | grep "Cycles elapsed" >> cycles_${TEST}_vs_${INTERF}.txt & PID_TO_WAIT=$!
+    #taskset -c 0 ../../benchmarks/sd-vbs/benchmarks/${TEST}/data/fullhd/${TEST} ../../benchmarks/sd-vbs/benchmarks/${TEST}/data/fullhd/. | grep "Cycles elapsed" >> cycles_${TEST}_vs_${INTERF}.txt & PID_TO_WAIT=$!
 
-    wait $PID_TO_WAIT
+    #wait $PID_TO_WAIT
 
-    sudo cat /sys/kernel/debug/tracing/trace > trace_${TEST}_vs_${INTERF}.txt 
+    #sudo cat /sys/kernel/debug/tracing/trace > trace_${TEST}_vs_${INTERF}.txt 
 
     sudo killall -2 bandwidth > /dev/null 2>&1
     sleep 1
