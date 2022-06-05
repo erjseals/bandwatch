@@ -13,6 +13,9 @@ memset=1
 bandwidth=1
 bandwidth_heavy=1
 
+sudo insmod ../../patched_memguard/memguard.ko g_hw_counter_id=0x17
+sleep 2
+
 for i in "${LOOP[@]}"
 do
   if [[ $i == 0 ]]
@@ -43,8 +46,6 @@ do
     INTERF="isolated"
     echo "$TEST $INTERF"
       
-    sudo insmod ../../patched_memguard/memguard.ko g_hw_counter_id=0x17
-    sleep 2
 
     sudo echo 0 > /sys/kernel/debug/memguard/throttle
     sleep 2
@@ -55,8 +56,6 @@ do
     wait $PID_TO_WAIT
 
     sudo cat /sys/kernel/debug/tracing/trace > trace_${INTERF}.txt
-
-    sudo rmmod memguard
 
     sleep 2
 
@@ -70,13 +69,10 @@ do
     INTERF="memset"
     echo "$TEST against $INTERF"
 
-    sudo insmod ../../patched_memguard/memguard.ko g_hw_counter_id=0x17
-    sleep 2
-
     sudo echo 0 > /sys/kernel/debug/memguard/throttle
     sleep 2
 
-    sudo taskset -c 2 ../../benchmarks/hesoc-mark/cuda/cudainterf -d $SIZE -s --iterations=20055 --mode=memset & 
+    sudo taskset -c 2 ../../benchmarks/hesoc-mark/cuda/cudainterf -d $SIZE -s --iterations=20055 --mode=memset | grep "Memset BW" | awk '{ print $4 }'  >> bw_${INTERF}.txt & PID_TO_KILL0=$!
     sleep 5
 
     PID_TO_KILL=$(pgrep cudainterf)
@@ -90,7 +86,7 @@ do
     sudo cat /sys/kernel/debug/tracing/trace > trace_${INTERF}.txt
     sudo kill -s SIGUSR2 $PID_TO_KILL
 
-    sudo rmmod memguard
+    wait $PID_TO_KILL0
 
     sleep 2
 
@@ -111,13 +107,10 @@ do
     INTERF="memcpy"
     echo "$TEST against $INTERF"
 
-    sudo insmod ../../patched_memguard/memguard.ko g_hw_counter_id=0x17
-    sleep 2
-
     sudo echo 0 > /sys/kernel/debug/memguard/throttle
     sleep 2
 
-    sudo taskset -c 2 ../../benchmarks/hesoc-mark/cuda/cudainterf -d $SIZE -s --iterations=20055 --mode=memset & 
+    sudo taskset -c 2 ../../benchmarks/hesoc-mark/cuda/cudainterf -d $SIZE -s --iterations=20055 --mode=memcpy | grep "Memcpy BW" | awk '{ print $4 }'  >> bw_${INTERF}.txt & 
     sleep 5
 
     PID_TO_KILL=$(pgrep cudainterf)
@@ -131,7 +124,7 @@ do
     sudo cat /sys/kernel/debug/tracing/trace > trace_${INTERF}.txt
     sudo kill -s SIGUSR2 $PID_TO_KILL
 
-    sudo rmmod memguard
+    wait $PID_TO_KILL0
 
     sleep 2
 
