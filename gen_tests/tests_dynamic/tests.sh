@@ -7,11 +7,11 @@ sysctl -w kernel.sched_rt_runtime_us=-1
 TEST="tracking"
 SIZE="250000"
 
-isolated=12
-memcpy=12
-memset=12
+isolated=1
+memcpy=1
+memset=1
 bandwidth=1
-bandwidth_heavy=1
+bandwidth_heavy=12
 
 sudo insmod ../../patched_memguard/memguard.ko g_hw_counter_id=0x17
 sleep 2
@@ -77,14 +77,14 @@ do
 
     PID_TO_KILL=$(pgrep cudainterf)
 
-    sudo kill -s SIGUSR1 $PID_TO_KILL
     sudo echo 0 > /sys/kernel/debug/tracing/trace
+    sudo kill -s SIGUSR1 $PID_TO_KILL
 
     sudo taskset -c 0 ../../benchmarks/sd-vbs/benchmarks/${TEST}/data/fullhd/${TEST} ../../benchmarks/sd-vbs/benchmarks/${TEST}/data/fullhd/. | grep "Cycles elapsed" >> cycles_${INTERF}.txt & PID_TO_WAIT=$! 
     wait $PID_TO_WAIT
+    sudo kill -s SIGUSR2 $PID_TO_KILL
 
     sudo cat /sys/kernel/debug/tracing/trace > trace_${INTERF}.txt
-    sudo kill -s SIGUSR2 $PID_TO_KILL
 
     wait $PID_TO_KILL0
 
@@ -112,14 +112,14 @@ do
 
     PID_TO_KILL=$(pgrep cudainterf)
 
-    sudo kill -s SIGUSR1 $PID_TO_KILL
     sudo echo 0 > /sys/kernel/debug/tracing/trace
+    sudo kill -s SIGUSR1 $PID_TO_KILL
 
     sudo taskset -c 0 ../../benchmarks/sd-vbs/benchmarks/${TEST}/data/fullhd/${TEST} ../../benchmarks/sd-vbs/benchmarks/${TEST}/data/fullhd/. | grep "Cycles elapsed" >> cycles_${INTERF}.txt & PID_TO_WAIT=$! 
     wait $PID_TO_WAIT
+    sudo kill -s SIGUSR2 $PID_TO_KILL
 
     sudo cat /sys/kernel/debug/tracing/trace > trace_${INTERF}.txt
-    sudo kill -s SIGUSR2 $PID_TO_KILL
 
     wait $PID_TO_KILL0
 
@@ -197,16 +197,16 @@ do
     sleep 5
     PID_TO_KILL=$(pgrep cudainterf)
 
-    sudo kill -s SIGUSR1 $PID_TO_KILL
     sudo echo 0 > /sys/kernel/debug/tracing/trace
     for c in 1 2 3; do bandwidth -c $c -t 1000 >> bw_${INTERF}_cpu.txt & done
+    sudo kill -s SIGUSR1 $PID_TO_KILL
 
     taskset -c 0 ../../benchmarks/sd-vbs/benchmarks/${TEST}/data/fullhd/${TEST} ../../benchmarks/sd-vbs/benchmarks/${TEST}/data/fullhd/. | grep "Cycles elapsed" > cycles_${TEST}_vs_${INTERF}.txt & PID_TO_WAIT=$!
 
     wait $PID_TO_WAIT
+    sudo kill -s SIGUSR2 $PID_TO_KILL
     sudo killall -2 bandwidth
     sudo cat /sys/kernel/debug/tracing/trace > trace_${TEST}_vs_${INTERF}.txt 
-    sudo kill -s SIGUSR2 $PID_TO_KILL
 
     sleep 1
 
@@ -229,16 +229,16 @@ do
     sleep 5
     PID_TO_KILL=$(pgrep cudainterf)
 
-    sudo kill -s SIGUSR1 $PID_TO_KILL
-    sudo echo 0 > /sys/kernel/debug/tracing/trace
     for c in 1 2 3; do bandwidth -a write -c $c -t 1000 >> bw_${INTERF}_cpu.txt & done 
+    sudo echo 0 > /sys/kernel/debug/tracing/trace
+    sudo kill -s SIGUSR1 $PID_TO_KILL
 
     taskset -c 0 ../../benchmarks/sd-vbs/benchmarks/${TEST}/data/fullhd/${TEST} ../../benchmarks/sd-vbs/benchmarks/${TEST}/data/fullhd/. | grep "Cycles elapsed" > cycles_${TEST}_vs_${INTERF}.txt & PID_TO_WAIT=$!
 
     wait $PID_TO_WAIT
+    sudo kill -s SIGUSR2 $PID_TO_KILL
     sudo killall -2 bandwidth
     sudo cat /sys/kernel/debug/tracing/trace > trace_${TEST}_vs_${INTERF}.txt 
-    sudo kill -s SIGUSR2 $PID_TO_KILL
 
     sleep 1
 

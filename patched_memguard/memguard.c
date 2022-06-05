@@ -380,15 +380,15 @@ static void dynamic_throttle(struct core_info *cinfo)
   // Basically, create THROTTLE_MAX regions of
   // RT CPU usage amounts
   
-  throttle = (mc_cpu_avg * THROTTLE_MAX) / MAX_CPU_UTILIZATION;
-  set_throttle(throttle);
   
   // Simple if else on whether to throttle other
   // CPU NRT cores
 
   i = 0;
-
   if ( cinfo->used[0] > CPU_RT_BANDWIDTH ) {
+    // CPU utilization 0 - 2800
+    // 16 discrete regions
+    throttle = (mc_cpu_avg * THROTTLE_MAX) / MAX_CPU_UTILIZATION;
     // throttle cpu cores
     for_each_online_cpu(i) {
       if (i == 0);
@@ -399,6 +399,7 @@ static void dynamic_throttle(struct core_info *cinfo)
     }
   }
   else {
+    throttle = 0;
     for_each_online_cpu(i) {
       if (i == 0);
       else {
@@ -407,6 +408,8 @@ static void dynamic_throttle(struct core_info *cinfo)
       }
     }
   }
+
+  set_throttle(throttle);
 }
 #endif
 
@@ -605,7 +608,7 @@ void update_statistics(struct core_info *cinfo)
 	  DEBUG_PROFILE(trace_printk("%d %d %lld %d %d\n",
 				   mc_all_avg, mc_cpu_avg,
            new, used, throttle_amount));
-    //dynamic_throttle(cinfo);
+    dynamic_throttle(cinfo);
   }
 #else
   if (smp_processor_id() == 0) {
