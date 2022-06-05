@@ -1,24 +1,14 @@
 void dynamic_regulation()
 {
-if (cpu_utilization > cpu_threshold) {
-  // Monitor GPU
-  if (gpu_utilization > gpu_threshold_l)
-    increase_throttle();
-  else 
-    decrease_throttle();
-  
-  // Monitor CPUs
-  if (RT_core_bandwidth > rt_threshold)
+  if (cpu_utilization > cpu_threshold) {
+    // Throttle GPU relative to CPU MC Utilization
+    throttle_amount = cpu_utilization * THROTTLE_MAX
+                      / MAX_CPU_UTILIZATION;  
     throttle_cpus();
-  else
+  }
+  else {
+    throttle_amount = 0;
     relax_cpus();
-}
-else {
-  if (gpu_utilization > gpu_threshold_h)
-    increase_throttle();
-  else 
-    decrease_throttle();
-
-  relax_cpus();
-}
+  }
+  set_throttle(throttle_amount);
 }

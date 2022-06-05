@@ -1,7 +1,7 @@
 filename=ARG1
 
 
-set terminal pdfcairo font "Gill Sans,16" size 10in,6in linewidth 2 rounded #fontscale 1.0
+set terminal pdfcairo font "Gill Sans,16" size 5in,3in linewidth 2 rounded #fontscale 1.0
 set yrange [0:1]
 set y2range [0:5000]
 set xrange [3400:3600]
@@ -17,9 +17,9 @@ set y2tics
 # show both refill and writeback
 plot filename using (($4 * 64 * 1000000 + (1000*1024*1024 - 1)) / (1000*1024*1024)) title "bandwidth" with lines axis x1y2,\
 filename using (($3) / 16000) title "CPUutilization" with lines axis x1y1,\
-filename using (($2 - $3) / 16000) title "GPUutilization" with lines axis x1y1,\
-filename using (($5 - 1) / 16) lt rgb "#FF0000" title "Throttle Amount" with lines axis x1y1
+filename using (($2 - $3) / 16000) title "GPUutilization" with lines axis x1y1
 
+#filename using (($5 - 1) / 16) lt rgb "#FF0000" title "Throttle Amount" with lines axis x1y1
 
 #plot filename using ($2 / 16000) title "utilization" with lines axis x1y1,\
 #filename using (($2 - $3) / 16000) title "GPUutilization" with lines axis x1y1,\

@@ -46,7 +46,7 @@ fi
 
 # Hesoc Benchmarks
 
-if [[ 1 == 1 ]]
+if [[ 0 == 1 ]]
 then
   gnuplot -c gnuplot_baseline.scr ../tests_baseline/res/hesoc_isolated/parsed_trace_memset.txt > plots_baseline/hesoc/memset_isolated.pdf
 
@@ -59,9 +59,11 @@ fi
 
 # Bandwidth Benchmarks
 
-if [[ 0 == 1 ]]
+if [[ 1 == 1 ]]
 then
   gnuplot -c gnuplot_baseline.scr ../tests_baseline/res/bandwidth_baselines/parsed_trace_bandwidth0_isolated.txt > plots_baseline/bandwidth/bandwidth0_isolated.pdf
+  
+  gnuplot -c gnuplot_baseline_zoomed.scr ../tests_baseline/res/bandwidth_baselines/parsed_trace_bandwidth0_isolated.txt > plots_baseline/bandwidth/zoomed_bandwidth0_isolated.pdf
 
   gnuplot -c gnuplot_baseline.scr ../tests_baseline/res/bandwidth_baselines/parsed_trace_bandwidth01_isolated.txt > plots_baseline/bandwidth/bandwidth01_isolated.pdf
 
