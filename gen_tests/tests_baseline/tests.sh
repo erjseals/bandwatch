@@ -1,23 +1,24 @@
 #! /usr/bin/env bash 
 
-declare -a LOOP=(0 1 2 3 4)
+declare -a LOOP=(0)
 
 sysctl -w kernel.sched_rt_runtime_us=-1 
 
 TEST="tracking"
 SIZE="250000"
 
-isolated=1
-memcpy=1
-memset=1
+isolated=12
+memcpy=12
+memset=12
 bandwidth=1
 bandwidth_heavy=1
 benchmarks=5
 
+sudo insmod ../../patched_memguard/memguard.ko g_hw_counter_id=0x17
+sleep 2
+
 if [[ $benchmarks == 1 ]]
 then
-  sudo insmod ../../patched_memguard/memguard.ko g_hw_counter_id=0x17
-  sleep 2
   sudo echo 0 > /sys/kernel/debug/tracing/trace
 
   mkdir -p res/interf
@@ -200,18 +201,17 @@ do
     sudo echo 0 > /sys/kernel/debug/memguard/throttle
     sleep 2
 
-    for c in 1 2 3; do bandwidth -c $c -t 1000 >> bw_${INTERF}.txt & done
-
-    sleep 2
 
     sudo echo 0 > /sys/kernel/debug/tracing/trace
+
+    for c in 1 2 3; do bandwidth -c $c -t 1000 >> bw_${INTERF}.txt & done
 
     taskset -c 0 ../../benchmarks/sd-vbs/benchmarks/${TEST}/data/fullhd/${TEST} ../../benchmarks/sd-vbs/benchmarks/${TEST}/data/fullhd/. | grep "Cycles elapsed" >> cycles_${TEST}_vs_${INTERF}.txt & PID_TO_WAIT=$!
 
     wait $PID_TO_WAIT
+    sudo killall -2 bandwidth > /dev/null 2>&1
     sudo cat /sys/kernel/debug/tracing/trace > trace_${TEST}_vs_${INTERF}.txt 
 
-    sudo killall -2 bandwidth > /dev/null 2>&1
     sleep 1
 
     sudo killall -9 bandwidth > /dev/null 2>&1
@@ -224,19 +224,16 @@ do
     INTERF="bandwidth_write"
     echo "$TEST against $INTERF"
 
-    for c in 1 2 3; do bandwidth -a write -c $c -t 1000 >> bw_${INTERF}.txt & done
-
-    sleep 2
-
     sudo echo 0 > /sys/kernel/debug/tracing/trace
+    for c in 1 2 3; do bandwidth -a write -c $c -t 1000 >> bw_${INTERF}.txt & done
 
     taskset -c 0 ../../benchmarks/sd-vbs/benchmarks/${TEST}/data/fullhd/${TEST} ../../benchmarks/sd-vbs/benchmarks/${TEST}/data/fullhd/. | grep "Cycles elapsed" >> cycles_${TEST}_vs_${INTERF}.txt & PID_TO_WAIT=$!
 
     wait $PID_TO_WAIT
+    sudo killall -2 bandwidth > /dev/null 2>&1
 
     sudo cat /sys/kernel/debug/tracing/trace > trace_${TEST}_vs_${INTERF}.txt 
 
-    sudo killall -2 bandwidth > /dev/null 2>&1
     sleep 1
 
     sudo killall -9 bandwidth > /dev/null 2>&1
@@ -250,7 +247,6 @@ do
     INTERF="bandwidth_read_memcpy"
     echo "$TEST against $INTERF"
 
-    for c in 1 2 3; do bandwidth -c $c -t 1000 >> bw_${INTERF}_cpu.txt & done
     sudo taskset -c 2 ../../benchmarks/hesoc-mark/cuda/cudainterf -s -d $SIZE -i 20000 -m memcpy | grep "Memcpy BW" | awk '{ print $4 }'  >> bw_${INTERF}_gpu.txt & PID_TO_KILL0=$!
 
     sleep 5
@@ -258,14 +254,15 @@ do
 
     sudo kill -s SIGUSR1 $PID_TO_KILL
     sudo echo 0 > /sys/kernel/debug/tracing/trace
+    for c in 1 2 3; do bandwidth -c $c -t 1000 >> bw_${INTERF}_cpu.txt & done
 
     taskset -c 0 ../../benchmarks/sd-vbs/benchmarks/${TEST}/data/fullhd/${TEST} ../../benchmarks/sd-vbs/benchmarks/${TEST}/data/fullhd/. | grep "Cycles elapsed" > cycles_${TEST}_vs_${INTERF}.txt & PID_TO_WAIT=$!
 
     wait $PID_TO_WAIT
+    sudo killall -2 bandwidth
     sudo cat /sys/kernel/debug/tracing/trace > trace_${TEST}_vs_${INTERF}.txt 
     sudo kill -s SIGUSR2 $PID_TO_KILL
 
-    sudo killall -2 bandwidth
     sleep 1
 
     wait $PID_TO_KILL0
@@ -282,7 +279,6 @@ do
     INTERF="bandwidth_write_memset"
     echo "$TEST against $INTERF"
 
-    for c in 1 2 3; do bandwidth -a write -c $c -t 1000 >> bw_${INTERF}_cpu.txt & done 
     sudo taskset -c 2 ../../benchmarks/hesoc-mark/cuda/cudainterf -s -d $SIZE -i 20000 -m memset | grep "Memset BW" | awk '{ print $4 }'  >> bw_${INTERF}_gpu.txt & PID_TO_KILL0=$!
 
     sleep 5
@@ -290,14 +286,15 @@ do
 
     sudo kill -s SIGUSR1 $PID_TO_KILL
     sudo echo 0 > /sys/kernel/debug/tracing/trace
+    for c in 1 2 3; do bandwidth -a write -c $c -t 1000 >> bw_${INTERF}_cpu.txt & done 
 
     taskset -c 0 ../../benchmarks/sd-vbs/benchmarks/${TEST}/data/fullhd/${TEST} ../../benchmarks/sd-vbs/benchmarks/${TEST}/data/fullhd/. | grep "Cycles elapsed" > cycles_${TEST}_vs_${INTERF}.txt & PID_TO_WAIT=$!
 
     wait $PID_TO_WAIT
+    sudo killall -2 bandwidth
     sudo cat /sys/kernel/debug/tracing/trace > trace_${TEST}_vs_${INTERF}.txt 
     sudo kill -s SIGUSR2 $PID_TO_KILL
 
-    sudo killall -2 bandwidth
     sleep 1
 
     wait $PID_TO_KILL0
