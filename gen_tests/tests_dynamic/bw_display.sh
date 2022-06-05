@@ -1,4 +1,4 @@
-TEST="tracking"
+TEST="texture_synthesis"
 BASE=5694343
 echo "$TEST"
 
