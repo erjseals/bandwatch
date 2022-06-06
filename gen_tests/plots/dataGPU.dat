@@ -1,6 +1,6 @@
-# unregulated_memcpy regulated_memcpy unregulated_memset regulated_memset
-disparity 1.31 1.04 1.54 1.05
-mser 1.68 1.24 1.89 1.21
-sift 1.11 1.06 1.14 1.06
-t\\\_synth 1.00 1.01 1.00 1.00
-tracking 1.11 1.03 1.15 1.04
+# unregulated static dynamic 
+disparity 1.54 1.04 1.05
+mser 1.89 1.16 1.21
+sift 1.14 1.05 1.06
+t\\\_synth 1.00 1.00 1.00
+tracking 1.15 1.02 1.04

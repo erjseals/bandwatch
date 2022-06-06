@@ -14,9 +14,8 @@ set grid ytics
 set key ins vert
 set key right top
 
-plot "dataCPU.dat" using 2:xtic(1) title "bwRead" ls 2,    \
-     "dataCPU.dat" using 3 title "dynamic bwRead" ls 2,     \
-     "dataCPU.dat" using 4 title "bwWrite" ls 2,   \
-     "dataCPU.dat" using 5 title "dynamic bwWrite" ls 2
+plot "dataCPU.dat" using 2:xtic(1) title "unregulated" ls 2,    \
+     "dataCPU.dat" using 3 title "static" ls 2,     \
+     "dataCPU.dat" using 4 title "dynamic" ls 2
 
 

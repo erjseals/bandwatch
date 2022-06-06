@@ -1,7 +1,7 @@
 
 set terminal pdfcairo font "Gill Sans,16" size 5in,3in linewidth 2 rounded #fontscale 1.0
 
-set yrange [0:4]
+set yrange [0:20]
 set ylabel "Normalized Slowdown"
 set style line 2 lc rgb 'black' lt 1 lw 1
 set style data histogram
@@ -14,8 +14,8 @@ set grid ytics
 set key ins vert
 set key right top
 
-plot "datamemset.dat" using 2:xtic(1) title "unregulated" ls 2,    \
-     "datamemset.dat" using 3 title "static" ls 2, \
-     "datamemset.dat" using 4 title "dynamic" ls 2
+plot "dataCPUBW.dat" using 2:xtic(1) title "unregulated" ls 2,    \
+     "dataCPUBW.dat" using 3 title "static" ls 2, \
+     "dataCPUBW.dat" using 4 title "dynamic" ls 2
 
 
