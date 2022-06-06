@@ -1,0 +1,29 @@
+set terminal pdfcairo font "Gill Sans,16" size 5in,3in linewidth 2 rounded #fontscale 1.0
+set yrange [0:500]
+set xrange [-2:35]
+set ylabel "Latency [ns]" offset 0
+set xlabel "Working Set Size [Bytes]" offset 0
+
+set xtics ("1024" 0, "2048" 2, "4096" 4,"8192" 6, "16384" 8,\
+"32768" 10, "65536" 12, "131072" 14, "262144" 16,\
+"524288" 18, "1048576" 20, "2097152" 22,\
+"4194304" 24, "8388608" 26, "16777216" 28,\
+"50331648" 31) rotate by 45 right
+
+set ytics nomirror
+
+# options: lines, linespoints, boxes
+# first column: time (s), second column: mc_all, third column: mc_cpu, fourth column: cpu0 bandwidth 
+# show both refill and writeback
+
+set key ins vert
+set key left top
+
+plot "../tests_baseline/res/membench_cudainterf/rnd/rnd_0.txt" title "0" with lines axis x1y1,\
+"../tests_baseline/res/membench_cudainterf/rnd/rnd_1.txt" title "1" with lines axis x1y1,\
+"../tests_baseline/res/membench_cudainterf/rnd/rnd_2.txt" title "2" with lines axis x1y1,\
+"../tests_baseline/res/membench_cudainterf/rnd/rnd_3.txt" title "3" with lines axis x1y1,\
+"../tests_baseline/res/membench_cudainterf/rnd/rnd_4.txt" title "4" with lines axis x1y1,\
+"../tests_baseline/res/membench_cudainterf/rnd/rnd_8.txt" title "8" with lines axis x1y1,\
+"../tests_baseline/res/membench_cudainterf/rnd/rnd_16.txt" title "16" with lines axis x1y1,\
+"../tests_baseline/res/membench_cudainterf/rnd/rnd_31.txt" title "31" with lines axis x1y1
