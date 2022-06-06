@@ -1,0 +1,6 @@
+Cycles elapsed		- 6305648
+Cycles elapsed		- 6345162
+Cycles elapsed		- 6432365
+Cycles elapsed		- 6674245
+Cycles elapsed		- 6560876
+Cycles elapsed		- 6595094

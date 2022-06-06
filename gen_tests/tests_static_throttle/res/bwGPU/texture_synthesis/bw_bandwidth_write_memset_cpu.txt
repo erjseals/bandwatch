@@ -1,0 +1,6 @@
+CPU1: B/W = 900.97 MB/s | CPU1: average = 67.74 ns
+CPU2: B/W = 377.92 MB/s | CPU2: average = 161.50 ns
+CPU3: B/W = 900.66 MB/s | CPU3: average = 67.77 ns
+CPU2: B/W = 441.54 MB/s | CPU2: average = 138.23 ns
+CPU1: B/W = 1064.19 MB/s | CPU1: average = 57.35 ns
+CPU3: B/W = 1064.86 MB/s | CPU3: average = 57.32 ns
