@@ -1,0 +1,6 @@
+# static_slower dynamic static_faster
+disparity 1.56 2.08 3.22
+mser 1.00 1.19 1.59
+sift 1.00 1.11 1.54
+t\\\_synth 1.00 1.05 1.60
+tracking 1.58 1.22 2.38

@@ -1,0 +1,6 @@
+# unregulated_read regulated_read unregulated_write regulated_write
+disparity 2.89 1.04 3.41 1.07
+mser 1.52 1.05 1.96 1.12
+sift 1.50 1.06 1.62 1.11
+t\\\_synth 1.02 1.03 1.06 1.05
+tracking 1.82 1.05 2.06 1.06
