@@ -1,0 +1,6 @@
+# unregulated_read_memcpy regulated_read_memcpy unregulated_write_memset regulated_write_memset
+disparity 6.82 1.10 5.47 1.11
+mser 3.10 1.19 3.40 1.23
+sift 2.29 1.34 2.17 1.23
+t\\\_synth 1.11 1.09 1.06 1.09
+tracking 3.10 1.12 3.04 1.13
