@@ -1,0 +1,21 @@
+
+set terminal pdfcairo font "Gill Sans,16" size 5in,3in linewidth 2 rounded #fontscale 1.0
+
+set yrange [0:20]
+set ylabel "Normalized Slowdown"
+set style line 2 lc rgb 'black' lt 1 lw 1
+set style data histogram
+set style histogram cluster gap 1
+set style fill pattern border -1
+set boxwidth 0.9
+set xtics format ""
+set grid ytics
+
+set key ins vert
+set key right top
+
+plot "datacpu_CPUGPU.dat" using 2:xtic(1) title "unregulated" ls 2,    \
+     "datacpu_CPUGPU.dat" using 4 title "static" ls 2,     \
+     "datacpu_CPUGPU.dat" using 3 title "dynamic" ls 2
+
+
