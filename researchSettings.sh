@@ -6,3 +6,6 @@ sudo echo 4096 > /sys/kernel/debug/tracing/buffer_size_kb
 
 # Disable GUI
 # sudo systemctl set-default multi-user.target
+
+# Enable GUI
+sudo systemctl set-default graphical.target

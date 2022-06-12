@@ -86,7 +86,7 @@ fi
 
 # Bandwidth Benchmarks
 
-if [[ 1 == 1 ]]
+if [[ 0 == 1 ]]
 then
   gnuplot -c gnuplot_baseline.scr ../tests_baseline/res/bandwidth_baselines/parsed_trace_bandwidth_read_isolated.txt > plots_baseline/bandwidth/bandwidth_read_isolated.pdf
   
