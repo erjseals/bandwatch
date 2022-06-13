@@ -1,0 +1,15 @@
+memsize=16384 KB, type=write, cpuid=1
+stop at 1000
+g_nread(bytes read) = 3875536896
+elapsed = 5.56 sec ( 5557207 usec )
+CPU1: B/W = 665.08 MB/s | CPU1: average = 91.77 ns
+memsize=16384 KB, type=write, cpuid=2
+stop at 1000
+g_nread(bytes read) = 1761607680
+elapsed = 5.55 sec ( 5546525 usec )
+CPU2: B/W = 302.89 MB/s | CPU2: average = 201.51 ns
+memsize=16384 KB, type=write, cpuid=3
+stop at 1000
+g_nread(bytes read) = 3875536896
+elapsed = 5.56 sec ( 5556531 usec )
+CPU3: B/W = 665.16 MB/s | CPU3: average = 91.76 ns
