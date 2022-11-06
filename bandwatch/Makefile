@@ -1,7 +1,10 @@
-obj-m += bandwatch.o
+obj-m = memguard.o
 
-all:
-	make -C /lib/modules/$(shell uname -r)/build M=$(PWD) modules
+KVERSION = $(shell uname -r)
+BLDDIR= /lib/modules/$(KVERSION)/build
+
+all: 
+	make -C $(BLDDIR) M=$(PWD) modules
 
 clean:
-	make -C /lib/modules/$(shell uname -r)/build M=$(PWD) clean
+	make -C $(BLDDIR) M=$(PWD) clean
