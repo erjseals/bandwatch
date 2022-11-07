@@ -34,7 +34,7 @@ The Memory Activity Monitor and GPU throttling mechanism can be tested individua
 
 ### GPU Throttle
 
-On a Jetson product in the `/bandwatch/individual_modules/throttle` directory, first compile the code:
+On a Jetson product in the `/bandwatch/individual_modules/throttle` directory:
 
 ```shell
 $ make
@@ -46,7 +46,7 @@ $ echo 8 > /sys/kernel/debug/throttle/throttle
 ```
 
 ### Activity Monitor
-On a Jetson product in the `/bandwatch/individual_modules/actmon` directory, first compile the code:
+On a Jetson product in the `/bandwatch/individual_modules/actmon` directory:
 
 ```shell
 $ make
