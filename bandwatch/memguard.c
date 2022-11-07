@@ -63,26 +63,24 @@
 
 
 /**************************************************************************
-**************************************************************************
-**************************************************************************
-**************************************************************************
  * Throttle Addresses 
  **************************************************************************/
 
-#define THROTTLE 0
+#define THROTTLE 1
 
 // Base Address
 #define MC_ADDRESS                          0x70019000
-#define MC_EMEM_ARB_OUTSTANDING_REQ_0       0x70019094
-#define MC_EMEM_ARB_RING1_THROTTLE_0        0x700190e0
-#define MC_EMEM_ARB_RING3_THROTTLE_0        0x700190e4
-// Disable bit 31 for ring1 arbitration
-#define MC_EMEM_ARB_RING0_THROTTLE_MASK_0   0x700196bc
-#define MC_EMEM_ARB_OUTSTANDING_REQ_RING3_0 0x7001966c
+#define EMC_ADRESS                          0x7001b000
+
+// Offsets
+#define MC_EMEM_ARB_OUTSTANDING_REQ_0       0x94
+#define MC_EMEM_ARB_RING1_THROTTLE_0        0xe0
+#define MC_EMEM_ARB_RING3_THROTTLE_0        0xe4
+#define MC_EMEM_ARB_RING0_THROTTLE_MASK_0   0x6bc
+#define MC_EMEM_ARB_OUTSTANDING_REQ_RING3_0 0x66c
 
 // Manual EMC Trigger
-#define EMC_ADRESS                          0x7001b000
-#define EMC_TIMING_CONTROL_0                0x7001b028
+#define EMC_TIMING_CONTROL_0                0x28
 
 // Latency Allowance Registers
 #define MC_LATENCY_ALLOWANCE_GPU            0x700193ac
@@ -139,11 +137,6 @@
 #define CPU_BE_BANDWIDTH 163823
 
 /**************************************************************************
-**************************************************************************
-**************************************************************************
-
-
-**************************************************************************
  * Public Definitions
  **************************************************************************/
 #define CACHE_LINE_SIZE 64
@@ -232,6 +225,7 @@ static u32 mc_all_avg = 0;
 static u32 mc_cpu_avg = 0;
 static u32 mc_all_count = 0;
 static u32 mc_cpu_count = 0;
+
 #if THROTTLE
 static u32 throttle_amount = 0;
 static u32 throttle_limit  = 0;
@@ -354,7 +348,6 @@ static void set_limit(u32 value)
   throttle_limit = value;
 }
 
-
 static void dynamic_throttle(struct core_info *cinfo)
 {
   int i;
@@ -411,7 +404,6 @@ static void dynamic_throttle(struct core_info *cinfo)
 
   set_throttle(throttle);
 }
-#endif
 
 static void set_actmon(void)
 {
@@ -446,7 +438,6 @@ static void set_actmon(void)
   bitWise = 0;
   io = ioremap(ACTMON_ADDRESS + ACTMON_MCALL_INIT_AVG_0, 32);
   iowrite32( bitWise , io);
-
 
   // mc_cpu
   // Enable MC Activity Monitor
@@ -485,6 +476,7 @@ static void reset_actmon(void)
   bitWise = ~(1 << 31);
   iowrite32( (ioread32(io) & bitWise) , io);
 }
+#endif
 
 /* similar to on_each_cpu_mask(), but this must be called with IRQ disabled */
 static void memguard_on_each_cpu_mask(const struct cpumask *mask, 
@@ -608,7 +600,8 @@ void update_statistics(struct core_info *cinfo)
 	  DEBUG_PROFILE(trace_printk("%d %d %lld %d %d\n",
 				   mc_all_avg, mc_cpu_avg,
            new, used, throttle_amount));
-    //dynamic_throttle(cinfo);
+
+    dynamic_throttle(cinfo);
   }
 #else
   if (smp_processor_id() == 0) {
@@ -1167,27 +1160,22 @@ static int memguard_init_debugfs(void)
 
 #if THROTTLE
   debugfs_create_file("throttle", 0444, memguard_dir, NULL, &throttle_fops);
-#endif
-  
+  debugfs_create_u32("throttle_limit", 0444, memguard_dir, &throttle_limit);
+  debugfs_create_u32("throttle_amount", 0444, memguard_dir, &throttle_amount);
+
   debugfs_create_u32("mc_all_avg", 0444, memguard_dir, &mc_all_avg);
   debugfs_create_u32("mc_all_count", 0444, memguard_dir, &mc_all_count);
   debugfs_create_u32("mc_cpu_avg", 0444, memguard_dir, &mc_cpu_avg);
   debugfs_create_u32("mc_cpu_count", 0444, memguard_dir, &mc_cpu_count);
-#if THROTTLE 
-  debugfs_create_u32("throttle_limit", 0444, memguard_dir, &throttle_limit);
-  debugfs_create_u32("throttle_amount", 0444, memguard_dir, &throttle_amount);
-#endif
 
-#if THROTTLE
-  io_throttle = ioremap(MC_EMEM_ARB_RING1_THROTTLE_0, 32);
-  io_limit = ioremap(MC_EMEM_ARB_OUTSTANDING_REQ_0, 32);
-  io_arbitration = ioremap(MC_EMEM_ARB_RING0_THROTTLE_MASK_0, 32);
-  io_emc_trigger = ioremap(EMC_TIMING_CONTROL_0, 32);
-  //io_gpu_latency =  ioremap(MC_LATENCY_ALLOWANCE_GPU, 32);
-  //io_gpu2_latency = ioremap(MC_LATENCY_ALLOWANCE_GPU2, 32);
-#endif
+  io_throttle         = ioremap(MC_ADDRESS + MC_EMEM_ARB_RING1_THROTTLE_0, 32);
+  io_limit            = ioremap(MC_ADDRESS + MC_EMEM_ARB_OUTSTANDING_REQ_0, 32);
+  io_arbitration      = ioremap(MC_ADDRESS + MC_EMEM_ARB_RING0_THROTTLE_MASK_0, 32);
+  io_emc_trigger      = ioremap(EMC_ADDRESS + EMC_TIMING_CONTROL_0, 32);
+
   io_mc_all_avg_count = ioremap(ACTMON_ADDRESS + ACTMON_MCALL_AVG_COUNT_0, 32);
   io_mc_cpu_avg_count = ioremap(ACTMON_ADDRESS + ACTMON_MCCPU_AVG_COUNT_0, 32);
+#endif
 
 	return 0;
 }
@@ -1337,11 +1325,11 @@ int init_module( void )
 		div64_u64(TM_NS(global->period_in_ktime), 1000));
 	on_each_cpu(__start_counter, NULL, 0);
 
-	set_actmon();
-
 #if THROTTLE
   // Initialize Throttle Mechanism
   set_limit(0x1FF);
+
+	set_actmon();
 #endif
 
   put_online_cpus();

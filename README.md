@@ -1,71 +1,55 @@
-Bandwatch 
+# Bandwatch 
 
 Eric Seals (ericseals@ku.edu)
+
 Heechul Yun (heechul@illinois.edu)
 
-Preparation
-===========  
+## Preparation
+
 Recommended kernel settings are as follows:
 
 	CONFIG_ACPI_PROCESSOR=n
 	CONFIG_CPU_IDLE=n
 
-Install
-===========
-	# make
-	# insmod memguard.ko	
-	    <-- Load the module by doing
+## Build and Install
 
-Usage
-===========  
+On a Jetson product in the bandwatch directory, first compile the code:
+```shell
+$ make
+```
+Load the kernel mode and specify Tegra X1 hardware memory counter:
+```shell
+$ insmod memguard.ko g_hw_counter_id=0x17
+```
 
-Once the module is loaded, it provides several configuration interfaces as follows:
+## Usage
 
-	- per-core bandwidth assignment.
+Once the module is loaded, Bandwatch can be used for dynamic memory regulation in an effort to maintain RT CPU core performance against co-running CPU and GPU applications. The current configuration will protect CPU core 0 against interference.
 
-	assign 900,100,100,100 MB/s for Core 0,1,2,3
-	# echo mb 900 100 100 100 > /sys/kernel/debug/memguard/limit
+A note on memory controller utilization on Tegra. The MC runs at a clock speed of 1.6GHz so at a 10us sample period, 10% utilization is measured as 1600 ticks by the activity monitor.
 
-	assign 70%,10%,10%,10% of guaranteed bandwidth(r_min) for Core 0,1,2,3
-	# echo 70 10 10 10 > /sys/kernel/debug/memguard/limit
+## Individual Components
 
-	assign weights(1:2:4:8) for Core 0,1,2,3
-	# echo 1 2 4 8 > /sys/kernel/debug/memguard/share
+The Memory Activity Monitor and GPU throttling mechanism can be tested individually by exploring the individual_modules directory.
 
+### GPU Throttle
 
-	- per-task mode (use task priority as core's memory weight)
+On a Jetson product in the `/bandwatch/individual_modules/throttle` directory, first compile the code:
 
-	enable per-task mode
-	# echo taskprio 1 > /sys/kernel/debug/memguard/control
+```shell
+$ make
+$ insmod throttle.ko
+```
+The throttling level is controlled using the debugfs interface. On Tegra X1 architectures, the memory throttling has the granularity of 32 levels. For example, the following sets the level to 8: 
+```shell
+$ echo 8 > /sys/kernel/debug/throttle/throttle
+```
 
-	disble per-task mode (=per-core mode)
-	# echo taskprio 0 > /sys/kernel/debug/memguard/control
+### Activity Monitor
+On a Jetson product in the `/bandwatch/individual_modules/actmon` directory, first compile the code:
 
-
-	- set maxbw (r_min in the paper)
-
-	# echo maxbw 1200 > /sys/kernel/debug/memguard/control
-
-
-	- reclaim control
-
-	enable
-	# echo reclaim 1 > /sys/kernel/debug/memguard/control
-
-	disable
-	# echo reclaim 0 > /sys/kernel/debug/memguard/control
-
-
-	- exclusive mode control
-
-	strict reservation. (disable best-effort sharing. only use guaranteed bw)
-	# echo exclusive 0 > /sys/kernel/debug/memguard/control
-
-	last exclusive. last core exclusively use the rest b/w (not in the paper)
-	# echo exclusive 1 > /sys/kernel/debug/memguard/control
-
-	spare b/w sharing mode (see RTAS13)
-	# echo exclusive 2 > /sys/kernel/debug/memguard/control
-
-	proportional share mode (see TC submission)  
-	# echo exclusive 5 > /sys/kernel/debug/memguard/control
+```shell
+$ make
+$ insmod actmon.ko
+```
+You can run the simple script `logACTMON.sh` to output to the console, every 100ms, the total average count of memory cycles within the memory controller. 
