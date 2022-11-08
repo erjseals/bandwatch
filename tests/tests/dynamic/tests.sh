@@ -1,6 +1,6 @@
 #! /usr/bin/env bash 
 
-declare -a LOOP=(0 1)
+declare -a LOOP=(0 1 2 3 4)
 
 sysctl -w kernel.sched_rt_runtime_us=-1 
 

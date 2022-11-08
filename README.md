@@ -2,8 +2,6 @@
 
 Eric Seals (ericseals@ku.edu)
 
-Heechul Yun (heechul@illinois.edu)
-
 ## Preparation
 
 Recommended kernel settings are as follows:
@@ -27,6 +25,12 @@ $ insmod memguard.ko g_hw_counter_id=0x17
 Once the module is loaded, Bandwatch can be used for dynamic memory regulation in an effort to maintain RT CPU core performance against co-running CPU and GPU applications. The current configuration will protect CPU core 0 against interference.
 
 A note on memory controller utilization on Tegra. The MC runs at a clock speed of 1.6GHz so at a 10us sample period, 10% utilization is measured as 1600 ticks by the activity monitor.
+
+## Figures
+
+Figures used in the paper can be produced the shell scripts available in the /tests/plots directory. 
+
+*Need to convert all scripts to follow the dynamic example*
 
 ## Individual Components
 

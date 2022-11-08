@@ -1,13 +1,9 @@
 #! /usr/bin/env bash 
 
-TEST="mser"
-mkdir -p plots_baseline/${TEST}
 mkdir -p plots_baseline/hesoc
 mkdir -p plots_baseline/bandwidth
 
 # Full Figures
-
-#  gnuplot -c gnuplot_baseline.scr ../tests_baseline/res/${TEST}_baselines/parsed_trace_${TEST}_isolated.txt > plots_baseline/${TEST}/${TEST}_isolated.pdf
 
 TEST="disparity"
 mkdir -p plots_baseline/${TEST}
