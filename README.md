@@ -30,8 +30,6 @@ A note on memory controller utilization on Tegra. The MC runs at a clock speed o
 
 Figures used in the paper can be produced the shell scripts available in the /tests/plots directory. 
 
-*Need to convert all scripts to follow the dynamic example*
-
 ## Individual Components
 
 The Memory Activity Monitor and GPU throttling mechanism can be tested individually by exploring the individual_modules directory.
