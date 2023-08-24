@@ -9,10 +9,13 @@ mkdir -p plots_static/${TEST}/memcpy
 
 for i in  "${THROTTLE_AMOUNT[@]}"
 do 
-  gnuplot -c gnuplot.scr ../tests_static_throttle/res/${TEST}/memset/parsed_trace_memset_$i.txt > plots_static/${TEST}/memset/memset_$i.pdf
-  gnuplot -c gnuplot.scr ../tests_static_throttle/res/${TEST}/memcpy/parsed_trace_memcpy_$i.txt > plots_static/${TEST}/memcpy/memcpy_$i.pdf
+  gnuplot -c gnuplot.scr ../tests/static_throttle/res/${TEST}/memset/parsed_trace_memset_$i.txt > plots_static/${TEST}/memset/memset_$i.pdf
+  gnuplot -c gnuplot.scr ../tests/static_throttle/res/${TEST}/memcpy/parsed_trace_memcpy_$i.txt > plots_static/${TEST}/memcpy/memcpy_$i.pdf
 
-  gnuplot -c gnuplot_static_zoomed.scr ../tests_static_throttle/res/${TEST}/memset/parsed_trace_memset_$i.txt > plots_static/${TEST}/memset/zoomed_memset_$i.pdf
-  gnuplot -c gnuplot_static_zoomed.scr ../tests_static_throttle/res/${TEST}/memcpy/parsed_trace_memcpy_$i.txt > plots_static/${TEST}/memcpy/zoomed_memcpy_$i.pdf
+  gnuplot -c gnuplot_static_zoomed.scr ../tests/static_throttle/res/${TEST}/memset/parsed_trace_memset_$i.txt > plots_static/${TEST}/memset/zoomed_memset_$i.pdf
+  gnuplot -c gnuplot_static_zoomed.scr ../tests/static_throttle/res/${TEST}/memcpy/parsed_trace_memcpy_$i.txt > plots_static/${TEST}/memcpy/zoomed_memcpy_$i.pdf
+
+  gnuplot -c gnuplot_static_util_zoomed.scr ../tests/static_throttle/res/${TEST}/memset/parsed_trace_memset_$i.txt > plots_static/${TEST}/memset/zoomed_memset_util_$i.pdf
+  gnuplot -c gnuplot_static_util_zoomed.scr ../tests/static_throttle/res/${TEST}/memcpy/parsed_trace_memcpy_$i.txt > plots_static/${TEST}/memcpy/zoomed_memcpy_util_$i.pdf
 done
 
